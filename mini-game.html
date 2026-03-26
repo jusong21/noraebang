@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini game — CMS 먹방</title>
+    <link
+      rel="preload"
+      href="fonts/DungGeunMo/DungGeunMo.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="images/cloud.jpg" as="image" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/remote.css" />
+    <style>
+      html {
+        scrollbar-gutter: stable;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        margin: 0;
+        box-sizing: border-box;
+        min-height: 100vh;
+        min-height: 100svh;
+        overflow: hidden;
+        background: #111 url("images/cloud.jpg") repeat;
+        background-size: 180px 180px;
+        font-family: "DungGeunMo", system-ui, sans-serif;
+        color: #333;
+      }
+      .wrap {
+        position: relative;
+        height: 100%;
+        width: 100%;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+        background: transparent;
+      }
+      /* HUD — main LCD 느낌 */
+      .hud {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+        pointer-events: none;
+        user-select: none;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+      }
+      .pill {
+        padding: 8px 11px 9px;
+        border-radius: 10px;
+        background: #0a0a0a;
+        border: 2px solid #1a1a1a;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        color: rgba(100, 255, 140, 0.88);
+        text-shadow: 0 0 10px rgba(0, 255, 120, 0.35);
+      }
+      /* 리모콘 셸은 css/remote.css 의 .remote-shell + .remote-shell--game-overlay (main 과 동일 박스) */
+      /* 결과 화면: 설명 줄 숨김 — 점수는 상단 서브타이틀에만 */
+      #cardDesc.cardDesc--hidden {
+        display: none;
+      }
+      #cardSubtitle .brand-score-label {
+        color: #fff;
+      }
+      #cardSubtitle .brand-score {
+        color: #7dd3fc;
+      }
+      /* 설명 안 강조: 점수와 동일 하늘색 (일반 .remote__hint b 노랑 덮어씀) */
+      #cardDesc b {
+        color: #7dd3fc;
+      }
+      /* RESTART 위 — 결과 화면에서만 표시 */
+      #replayHint {
+        margin: 10px 0 6px;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="game"></canvas>
+
+      <div class="hud" aria-hidden="true">
+        <div class="pill">SCORE: <span id="score">0</span></div>
+        <div class="pill">TIME: <span id="time">12</span>s</div>
+        <div class="pill">BEST: <span id="best">0</span></div>
+      </div>
+
+      <div id="overlay" class="remote-shell remote-shell--game-overlay">
+        <main class="remote" aria-label="Mini game">
+          <div class="remote__brand">
+            <span class="remote__brand-main" id="cardTitle">Mini game</span>
+            <span class="remote__brand-sub" id="cardSubtitle">ROOM REMOTE</span>
+          </div>
+
+          <div class="remote__lcd" id="nicknameField">
+            <label for="nicknameInput">USER ID</label>
+            <input id="nicknameInput" type="text" maxlength="24" placeholder="________________________________________" />
+          </div>
+
+          <div
+            class="remote__button-panel remote__button-panel--centered"
+            id="gameButtonPanel"
+          >
+            <p class="remote__hint desc" id="cardDesc">
+              Food’s raining down!<br />
+              Catch the good, dodge the bad.<br />
+              You’ve got <b>12 seconds</b>.<br />
+              Go!
+            </p>
+            <div class="rank-section" id="rankSection">
+              <div class="rank-title">SCORE RANKING</div>
+              <div class="rank-list" id="rankList"></div>
+            </div>
+            <p id="replayHint" class="remote__hint replay-hint" hidden>
+              One more round?
+            </p>
+            <div class="remote__keys">
+              <button id="startBtn" type="button" class="remote__key remote__key--mini" disabled>
+                이미지 로딩 중…
+              </button>
+            </div>
+
+            <div class="remote__dock" aria-label="Quick navigation">
+              <a class="remote__dock-btn" href="main.html" title="Main menu" aria-label="Main menu">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </a>
+              <a class="remote__dock-btn" href="index.html" title="Opening" aria-label="Opening scene">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              </a>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const NICK_KEY = "partyNickname";
+      const DEFAULT_NICK = "Your name";
+      const LS_RANK = "cms-food-game-rank";
+      const LS_BEST = "cms-food-game-best";
+
+      const TIME_MS = 12 * 1000;
+      const MOOD_MS = 520;
+      const POINTS = {
+        lemoncake: 2,
+        beer: 3,
+        frites: -1,
+        waffle: -2,
+      };
+
+      const ASSETS = {
+        cloudBg: "images/cloud.jpg",
+        cms: "images/cms.png",
+        happycms: "images/happycms.png",
+        sadcms: "images/sadcms.png",
+        lemoncake: "images/lemoncake.png",
+        beer: "images/beer.png",
+        frites: "images/frites.png",
+        waffle: "images/waffle.png",
+      };
+
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const overlay = document.getElementById("overlay");
+      const startBtn = document.getElementById("startBtn");
+      const scoreEl = document.getElementById("score");
+      const timeEl = document.getElementById("time");
+      const bestEl = document.getElementById("best");
+      const nicknameInput = document.getElementById("nicknameInput");
+      const rankSection = document.getElementById("rankSection");
+      const rankList = document.getElementById("rankList");
+      const cardTitle = document.getElementById("cardTitle");
+      const cardSubtitle = document.getElementById("cardSubtitle");
+      const cardDesc = document.getElementById("cardDesc");
+      const gameButtonPanel = document.getElementById("gameButtonPanel");
+      const replayHint = document.getElementById("replayHint");
+
+      const INTRO_TITLE = "Mini game";
+      const INTRO_SUBTITLE = "ROOM REMOTE";
+      const INTRO_DESC_HTML = cardDesc.innerHTML;
+
+      const imgs = {};
+      let assetsReady = false;
+
+      function loadImage(key, src) {
+        return new Promise((resolve) => {
+          const im = new Image();
+          im.onload = () => {
+            imgs[key] = im;
+            resolve(true);
+          };
+          im.onerror = () => {
+            imgs[key] = null;
+            resolve(false);
+          };
+          im.src = src;
+        });
+      }
+
+      async function loadAllAssets() {
+        const entries = Object.entries(ASSETS);
+        await Promise.all(entries.map(([k, v]) => loadImage(k, v)));
+        assetsReady = true;
+        startBtn.disabled = false;
+        startBtn.textContent = "START";
+      }
+
+      const state = {
+        running: false,
+        score: 0,
+        best: 0,
+        nickname: "Guest",
+        timeLeft: TIME_MS,
+        playerX: 0,
+        playerW: 80,
+        playerH: 56,
+        mood: "normal",
+        moodUntil: 0,
+        items: [],
+        spawnAcc: 0,
+        spawnEvery: 560,
+        speedK: 1,
+        level: 1,
+        lastTs: 0,
+        particles: [],
+      };
+
+      function rand(a, b) {
+        return Math.random() * (b - a) + a;
+      }
+
+      function getDims() {
+        return { w: canvas.clientWidth, h: canvas.clientHeight };
+      }
+
+      /** 캔버스는 투명이어도 일부 환경에서 검게 보이므로, 구름을 직접 타일로 그림 */
+      function drawCloudBackground() {
+        const { w, h } = getDims();
+        const img = imgs.cloudBg;
+        if (!img || !img.naturalWidth) {
+          ctx.fillStyle = "#111";
+          ctx.fillRect(0, 0, w, h);
+          return;
+        }
+        const tw = 180;
+        const th = 180;
+        for (let x = 0; x < w + tw; x += tw) {
+          for (let y = 0; y < h + th; y += th) {
+            ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, x, y, tw, th);
+          }
+        }
+      }
+
+      function paintIdleCanvas() {
+        const { w, h } = getDims();
+        ctx.clearRect(0, 0, w, h);
+        drawCloudBackground();
+      }
+
+      function resize() {
+        const dpr = Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+        canvas.width = Math.floor(canvas.clientWidth * dpr);
+        canvas.height = Math.floor(canvas.clientHeight * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const { w } = getDims();
+        state.playerX = w / 2;
+        const base = imgs.cms;
+        if (base && base.naturalWidth) {
+          const ar = base.naturalHeight / base.naturalWidth;
+          state.playerW = Math.max(56, Math.min(110, w * 0.2));
+          state.playerH = state.playerW * ar;
+        } else {
+          state.playerW = Math.max(56, Math.min(110, w * 0.2));
+          state.playerH = state.playerW * 0.65;
+        }
+        updateHUD();
+        if (!state.running) paintIdleCanvas();
+      }
+      window.addEventListener("resize", resize);
+
+      function updateHUD() {
+        scoreEl.textContent = String(state.score);
+        bestEl.textContent = String(state.best);
+        timeEl.textContent = String(Math.max(0, Math.ceil(state.timeLeft / 1000)));
+      }
+
+      function loadBest() {
+        const raw = localStorage.getItem(LS_BEST);
+        state.best = raw ? parseInt(raw, 10) || 0 : 0;
+        updateHUD();
+      }
+      function saveBest() {
+        if (state.score > state.best) {
+          state.best = state.score;
+          localStorage.setItem(LS_BEST, String(state.best));
+          updateHUD();
+        }
+      }
+
+      function loadRanking() {
+        try {
+          const raw = localStorage.getItem(LS_RANK);
+          const p = raw ? JSON.parse(raw) : [];
+          return Array.isArray(p) ? p : [];
+        } catch {
+          return [];
+        }
+      }
+      function saveRanking(list) {
+        localStorage.setItem(LS_RANK, JSON.stringify(list));
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) =>
+          ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] || c)
+        );
+      }
+
+      function renderRanking(list) {
+        const sorted = [...(list || [])].sort(
+          (a, b) => (Number(b.score) || 0) - (Number(a.score) || 0)
+        );
+        if (!sorted.length) {
+          rankList.innerHTML =
+            '<div style="opacity:0.75;text-align:center;padding:8px;">아직 기록이 없어요.</div>';
+          return;
+        }
+        rankList.innerHTML = sorted
+          .map(
+            (item, i) => `
+          <div class="rank-item">
+            <span class="rank-name">#${i + 1} ${escapeHtml(item.name || DEFAULT_NICK)}</span>
+            <span class="rank-score">${Number(item.score) || 0}</span>
+          </div>`
+          )
+          .join("");
+      }
+
+      function playerY() {
+        const { h } = getDims();
+        return h - 18 - state.playerH;
+      }
+
+      function reset() {
+        const { w } = getDims();
+        state.running = false;
+        state.score = 0;
+        state.timeLeft = TIME_MS;
+        state.playerX = w / 2;
+        state.mood = "normal";
+        state.moodUntil = 0;
+        state.items = [];
+        state.particles = [];
+        state.spawnAcc = 0;
+        state.spawnEvery = 560;
+        state.speedK = 1;
+        state.level = 1;
+        updateHUD();
+      }
+
+      function setMood(kind) {
+        state.mood = kind;
+        state.moodUntil = performance.now() + MOOD_MS;
+      }
+
+      function finishGame() {
+        state.running = false;
+        state.timeLeft = 0;
+        saveBest();
+        overlay.style.display = "grid";
+        cardTitle.textContent = "TIME UP!";
+        cardSubtitle.innerHTML =
+          `<span class="brand-score-label">Final score: </span>` +
+          `<span class="brand-score">${state.score}</span>`;
+        replayHint.removeAttribute("hidden");
+        cardDesc.classList.add("cardDesc--hidden");
+        cardDesc.innerHTML = "";
+        gameButtonPanel.classList.add("remote__button-panel--results");
+        rankSection.classList.add("show");
+        const list = loadRanking();
+        list.push({ name: state.nickname, score: state.score, at: Date.now() });
+        list.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+        saveRanking(list);
+        renderRanking(list);
+        startBtn.textContent = "RESTART";
+        paintIdleCanvas();
+      }
+
+      function startGame() {
+        const nick = (nicknameInput.value || "").trim();
+        state.nickname = nick ? nick.slice(0, 24) : DEFAULT_NICK;
+        if (!nick) nicknameInput.value = state.nickname;
+
+        rankSection.classList.remove("show");
+        gameButtonPanel.classList.remove("remote__button-panel--results");
+        cardTitle.textContent = INTRO_TITLE;
+        cardSubtitle.textContent = INTRO_SUBTITLE;
+        replayHint.setAttribute("hidden", "");
+        cardDesc.classList.remove("cardDesc--hidden");
+        cardDesc.innerHTML = INTRO_DESC_HTML;
+        reset();
+        overlay.style.display = "none";
+        state.running = true;
+        state.lastTs = performance.now();
+        updateHUD();
+        requestAnimationFrame(loop);
+      }
+
+      /** 이미지 원본 비율 유지: 긴 변이 maxDim 이하가 되도록 스케일 */
+      function itemDrawSize(type, maxDim) {
+        const img = imgs[type];
+        if (!img || !img.naturalWidth) {
+          return { drawW: maxDim, drawH: maxDim };
+        }
+        const iw = img.naturalWidth;
+        const ih = img.naturalHeight;
+        const scale = maxDim / Math.max(iw, ih);
+        return { drawW: iw * scale, drawH: ih * scale };
+      }
+
+      function spawnItem() {
+        const types = ["lemoncake", "beer", "frites", "waffle"];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const { w } = getDims();
+        const maxDim = Math.max(52, Math.min(112, w * 0.18));
+        const { drawW, drawH } = itemDrawSize(type, maxDim);
+        const x = rand(drawW / 2 + 10, w - drawW / 2 - 10);
+        const y = -drawH / 2 - rand(0, 100);
+        state.items.push({
+          type,
+          x,
+          y,
+          drawW,
+          drawH,
+          vy: (290 + state.level * 3) * state.speedK * rand(0.92, 1.08),
+          rot: rand(-0.1, 0.1),
+          spin: rand(-0.018, 0.018),
+        });
+      }
+
+      function spawnSpark(x, y, c1, c2) {
+        for (let i = 0; i < 14; i++) {
+          state.particles.push({
+            x,
+            y,
+            vx: rand(-120, 120),
+            vy: rand(-200, -50),
+            life: rand(380, 640),
+            born: performance.now(),
+            color: Math.random() < 0.5 ? c1 : c2,
+            size: rand(2, 6),
+          });
+        }
+      }
+
+      function drawParticles(now) {
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const p = state.particles[i];
+          const t = (now - p.born) / p.life;
+          if (t >= 1) {
+            state.particles.splice(i, 1);
+            continue;
+          }
+          p.x += p.vx * 0.016;
+          p.y += p.vy * 0.016;
+          p.vy += 420 * 0.016;
+          ctx.globalAlpha = (1 - t) * 0.9;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function drawItem(it) {
+        const img = imgs[it.type];
+        if (!img) return;
+        const dw = it.drawW;
+        const dh = it.drawH;
+        ctx.save();
+        ctx.translate(it.x, it.y);
+        ctx.rotate(it.rot);
+        ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+        ctx.restore();
+      }
+
+      function drawPlayer() {
+        const y = playerY();
+        const x = state.playerX;
+        const w = state.playerW;
+        const h = state.playerH;
+        let key = "cms";
+        if (state.mood === "happy" && imgs.happycms) key = "happycms";
+        else if (state.mood === "sad" && imgs.sadcms) key = "sadcms";
+        const img = imgs[key] || imgs.cms;
+        if (img && img.complete && img.naturalWidth) {
+          ctx.drawImage(img, x - w / 2, y, w, h);
+        } else {
+          ctx.fillStyle = "#38bdf8";
+          ctx.fillRect(x - w / 2, y, w, h);
+        }
+      }
+
+      function aabbHit(px, pw, ox, oHalfW) {
+        return Math.abs(ox - px) <= pw / 2 + oHalfW * 0.72;
+      }
+
+      function pointerToX(ev) {
+        const rect = canvas.getBoundingClientRect();
+        return ev.clientX - rect.left;
+      }
+
+      function clamp(v, a, b) {
+        return Math.max(a, Math.min(b, v));
+      }
+
+      canvas.addEventListener("pointerdown", (ev) => {
+        if (!state.running) return;
+        state.playerX = clamp(pointerToX(ev), 0, getDims().w);
+      });
+      canvas.addEventListener("pointermove", (ev) => {
+        if (!state.running) return;
+        if (ev.buttons === 1 || ev.pointerType === "touch") {
+          state.playerX = clamp(pointerToX(ev), 0, getDims().w);
+        }
+      });
+      window.addEventListener("keydown", (e) => {
+        if (!state.running) return;
+        if (e.key === "ArrowLeft") state.playerX -= 32;
+        if (e.key === "ArrowRight") state.playerX += 32;
+        state.playerX = clamp(state.playerX, 0, getDims().w);
+      });
+
+      startBtn.addEventListener("click", startGame);
+
+      function loop(ts) {
+        if (!state.running) return;
+
+        const { w, h } = getDims();
+        const dt = Math.min(0.035, (ts - state.lastTs) / 1000);
+        state.lastTs = ts;
+
+        state.timeLeft -= dt * 1000;
+        if (state.timeLeft <= 0) {
+          state.timeLeft = 0;
+          updateHUD();
+          finishGame();
+          return;
+        }
+
+        if (ts >= state.moodUntil) state.mood = "normal";
+
+        /* 처음 대비 끝에서 살짝만 빨라짐 (시간 경과에 따라 최대 +8% 정도) */
+        const progress = (TIME_MS - state.timeLeft) / TIME_MS;
+        state.speedK = 1 + progress * 0.03;
+        state.spawnEvery = Math.max(240, 640 - state.level * 88);
+        state.level = 1 + Math.floor((TIME_MS - state.timeLeft) / 2000);
+
+        state.spawnAcc += dt * 1000;
+        while (state.spawnAcc >= state.spawnEvery) {
+          state.spawnAcc -= state.spawnEvery;
+          spawnItem();
+        }
+
+        const pY = playerY();
+
+        for (let i = state.items.length - 1; i >= 0; i--) {
+          const f = state.items[i];
+          f.y += f.vy * dt;
+          f.rot += f.spin;
+
+          const halfH = f.drawH * 0.5;
+          const hitLine = pY - halfH * 0.35;
+          if (f.y >= hitLine) {
+            if (aabbHit(state.playerX, state.playerW, f.x, f.drawW * 0.5)) {
+              const pts = POINTS[f.type] ?? 0;
+              state.score += pts;
+              if (pts > 0) {
+                setMood("happy");
+                spawnSpark(f.x, pY + state.playerH * 0.3, "#fbbf24", "#22d3ee");
+              } else {
+                setMood("sad");
+                spawnSpark(f.x, pY + state.playerH * 0.3, "#94a3b8", "#64748b");
+              }
+              updateHUD();
+              state.items.splice(i, 1);
+              continue;
+            }
+          }
+          if (f.y - halfH > h + 80) state.items.splice(i, 1);
+        }
+
+        ctx.clearRect(0, 0, w, h);
+        drawCloudBackground();
+
+        ctx.strokeStyle = "rgba(0,229,255,0.55)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 10]);
+        ctx.beginPath();
+        ctx.moveTo(14, pY + state.playerH + 8);
+        ctx.lineTo(w - 14, pY + state.playerH + 8);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        for (const f of state.items) drawItem(f);
+        drawPlayer();
+        drawParticles(ts);
+
+        updateHUD();
+        requestAnimationFrame(loop);
+      }
+
+      (function init() {
+        let fromMain = sessionStorage.getItem(NICK_KEY);
+        if (fromMain === "Guest") {
+          fromMain = DEFAULT_NICK;
+          sessionStorage.setItem(NICK_KEY, fromMain);
+        }
+        if (fromMain) nicknameInput.value = fromMain;
+        loadBest();
+        renderRanking(loadRanking());
+        resize();
+        loadAllAssets().then(() => {
+          resize();
+          paintIdleCanvas();
+        });
+      })();
+    </script>
+  </body>
+</html>

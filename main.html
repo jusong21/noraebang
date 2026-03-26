@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goodbye Party — Main</title>
+    <link
+      rel="preload"
+      href="fonts/DungGeunMo/DungGeunMo.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <!-- 배경 타일이 늦게 오면 #111 만 보이며 순간 검게 보임 -->
+    <link rel="preload" href="images/cloud.jpg" as="image" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/remote.css" />
+    <style>
+      html {
+        scrollbar-gutter: stable;
+      }
+      body {
+        margin: 0;
+        box-sizing: border-box;
+        min-height: 100vh;
+        min-height: 100svh;
+        /* 문서 스크롤 방지 — 스크롤은 .remote-shell 안에서만 (미니게임과 동일한 안정 레이아웃) */
+        overflow: hidden;
+        background: #111 url("images/cloud.jpg") repeat;
+        background-size: 180px 180px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="remote-shell remote-shell--game-overlay">
+      <main class="remote" aria-label="Noraebang room remote menu">
+      <div class="remote__brand">
+        <span class="remote__brand-main">Noraebang</span>
+        <span class="remote__brand-sub">ROOM REMOTE</span>
+      </div>
+
+      <div class="remote__lcd">
+        <label for="partyNick">USER ID</label>
+        <input
+          id="partyNick"
+          type="text"
+          maxlength="24"
+          placeholder="__________________"
+          autocomplete="nickname"
+        />
+      </div>
+
+      <div class="remote__button-panel">
+        <div class="remote__fake-row">
+          <button type="button" class="remote__fake-btn" data-fake="gansju">
+            간주점프
+          </button>
+          <button type="button" class="remote__fake-btn" data-fake="reserve">
+            우선예약
+          </button>
+        </div>
+
+        <div class="remote__keys">
+          <a class="remote__key remote__key--mini" href="mini-game.html" data-save-nick>MINI GAME</a>
+          <a class="remote__key remote__key--quiz" href="quizintro.html" data-save-nick>QUIZ</a>
+          <a class="remote__key remote__key--guest" href="guestbook.html" data-save-nick>GUESTBOOK</a>
+        </div>
+
+        <div class="remote__dock" aria-label="Quick navigation">
+          <a class="remote__dock-btn" href="main.html" title="Main menu" aria-label="Main menu">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </a>
+          <a class="remote__dock-btn" href="index.html" title="Opening" aria-label="Opening scene">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </a>
+        </div>
+      </div>
+      </main>
+    </div>
+
+    <script>
+      const NICK_KEY = "partyNickname";
+      /** 빈 칸으로 저장될 때 입력란에 보이는 기본 문구 (예전 "Guest" 대신) */
+      const DEFAULT_NICK = "Your name";
+      const input = document.getElementById("partyNick");
+      let saved = sessionStorage.getItem(NICK_KEY);
+      if (saved === "Guest") {
+        saved = DEFAULT_NICK;
+        sessionStorage.setItem(NICK_KEY, saved);
+      }
+      if (saved) input.value = saved;
+
+      function saveNick() {
+        const v = (input.value || "").trim().slice(0, 24);
+        sessionStorage.setItem(NICK_KEY, v || DEFAULT_NICK);
+      }
+
+      input.addEventListener("change", saveNick);
+      document.querySelectorAll("[data-save-nick]").forEach((el) => {
+        el.addEventListener("click", saveNick);
+      });
+
+      const FAKE_ALERTS = {
+        gansju:
+          "🎵 간주점프 (Instrumental skip)\n\n" +
+          "It's fake here, but...\n\n" +
+          "Arguably the fav button for a lot of Korean noraebang heads—skip the boring instrumental, land on the chorus like you meant it.",
+        reserve:
+          "⭐ 우선예약 (Priority booking)\n\n" +
+          "It's fake here, but...\n\n" +
+          "Your song (not me) cuts the queue. Everyone else’s song quietly files a complaint.\n" +
+          "Side effects may include side-eye, passive-aggressive humming, and a fragile peace treaty. Friendships may be affected.",
+      };
+
+      document.querySelectorAll(".remote__fake-btn[data-fake]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const key = btn.getAttribute("data-fake");
+          const msg =
+            FAKE_ALERTS[key] ||
+            "Mystery key: on a metal remote this would do something dramatic. Here it does drama anyway.";
+          alert(msg);
+        });
+      });
+    </script>
+  </body>
+</html>

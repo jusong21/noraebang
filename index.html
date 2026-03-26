@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rock & Cloud</title>
+    <link
+      rel="preload"
+      href="fonts/DungGeunMo/DungGeunMo.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="index-page">
+    <main id="scene" class="scene">
+      <div id="cloudLayer" class="cloud-layer" aria-hidden="true"></div>
+
+      <div id="moveLayer" class="move-layer" aria-hidden="true">
+        <div class="tv-wrap">
+          <img src="images/tv.png" class="tv-img" alt="" />
+          <div class="tv-effects-layer" aria-hidden="true">
+            <div class="tv-sparkle intro-sync"></div>
+            <div class="tv-sparkle-burst" aria-hidden="true"></div>
+            <div class="tv-crt-overlay"></div>
+            <div class="tv-glitch-overlay" aria-hidden="true"></div>
+            <div class="tv-roll-highlight"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- moveLayer 밖: 인트로 페이드(opacity)에 묶이지 않아 회전·하강이 보임 -->
+      <img src="images/rockstar.png" class="rockstar-img intro-sync" alt="rockstar" />
+
+      <div id="noraLayer" class="nora-layer" aria-hidden="true">
+        <div class="nora-graphic" role="img" aria-label="노래방">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 224" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="nbWall" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#4c1d95" />
+                <stop offset="0.55" stop-color="#312e81" />
+                <stop offset="1" stop-color="#1e1b4b" />
+              </linearGradient>
+              <linearGradient id="nbDoor" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#1e1b4b" />
+                <stop offset="1" stop-color="#0f172a" />
+              </linearGradient>
+              <filter id="nbNeon" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="1.8" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <!-- 지붕 + 간판 (노래방 야간 느낌) -->
+            <path d="M100 6 L188 48 L188 58 L12 58 L12 48 Z" fill="#3730a3" stroke="#6366f1" stroke-width="1.25" />
+            <rect x="22" y="14" width="156" height="36" rx="2" fill="#1e1b4b" stroke="#a78bfa" stroke-width="1.2" />
+            <rect x="26" y="18" width="148" height="12" rx="1" fill="#f472b6" filter="url(#nbNeon)" opacity="0.92" />
+            <rect x="26" y="32" width="148" height="8" rx="1" fill="#22d3ee" opacity="0.85" />
+            <text x="34" y="28" font-size="10" fill="#f9a8d4" opacity="0.9" font-family="system-ui,sans-serif" font-weight="700">♪</text>
+            <text x="168" y="28" font-size="10" fill="#a5f3fc" opacity="0.9" font-family="system-ui,sans-serif" font-weight="700">♪</text>
+            <!-- 노래방 텍스트 (페이지 폰트) -->
+            <text
+              x="100"
+              y="34"
+              text-anchor="middle"
+              font-family="DungGeunMo, 'Apple SD Gothic Neo', sans-serif"
+              font-size="11"
+              font-weight="700"
+              fill="#fef08a"
+              stroke="#0f172a"
+              stroke-width="0.35"
+              paint-order="stroke fill"
+            >
+              노래방
+            </text>
+            <!-- 마이크 (구·손잡이 비율 — 찌부 방지) -->
+            <g transform="translate(150, 18)" aria-hidden="true">
+              <circle cx="11" cy="8" r="8" fill="#64748b" stroke="#e2e8f0" stroke-width="0.85" />
+              <circle cx="11" cy="8" r="5" fill="#475569" opacity="0.9" />
+              <rect x="7" y="15" width="8" height="20" rx="1.5" fill="#475569" stroke="#94a3b8" stroke-width="0.5" />
+              <line x1="5" y1="24" x2="17" y2="24" stroke="#334155" stroke-width="1.1" stroke-linecap="round" />
+              <rect x="9" y="32" width="4" height="6" rx="0.75" fill="#1e293b" />
+            </g>
+            <!-- 본체: 가로 네온 라인 -->
+            <rect x="14" y="58" width="172" height="154" rx="4" fill="url(#nbWall)" stroke="#0f172a" stroke-width="2" />
+            <rect x="18" y="62" width="164" height="2" fill="#e879f9" opacity="0.35" filter="url(#nbNeon)" />
+            <!-- 창 -->
+            <rect x="26" y="72" width="46" height="32" rx="2" fill="#0369a1" opacity="0.45" stroke="#38bdf8" stroke-width="1.5" />
+            <rect x="128" y="72" width="46" height="32" rx="2" fill="#0369a1" opacity="0.45" stroke="#38bdf8" stroke-width="1.5" />
+            <line x1="49" y1="72" x2="49" y2="104" stroke="#0c4a6e" stroke-width="1" opacity="0.6" />
+            <line x1="26" y1="88" x2="72" y2="88" stroke="#0c4a6e" stroke-width="1" opacity="0.6" />
+            <line x1="151" y1="72" x2="151" y2="104" stroke="#0c4a6e" stroke-width="1" opacity="0.6" />
+            <line x1="128" y1="88" x2="174" y2="88" stroke="#0c4a6e" stroke-width="1" opacity="0.6" />
+            <!-- 스피커 -->
+            <circle cx="46" cy="124" r="14" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+            <circle cx="46" cy="124" r="9" fill="#1e293b" />
+            <circle cx="46" cy="124" r="4" fill="#334155" />
+            <circle cx="154" cy="124" r="14" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+            <circle cx="154" cy="124" r="9" fill="#1e293b" />
+            <circle cx="154" cy="124" r="4" fill="#334155" />
+            <!-- 문 + 세로 네온(입구 느낌) -->
+            <rect x="70" y="138" width="60" height="62" rx="2" fill="url(#nbDoor)" stroke="#a78bfa" stroke-width="2" />
+            <rect x="72" y="142" width="3" height="54" rx="0.5" fill="#f472b6" opacity="0.55" filter="url(#nbNeon)" />
+            <rect x="76" y="144" width="48" height="34" rx="1" fill="#1e293b" stroke="#475569" />
+            <circle cx="122" cy="188" r="3" fill="#fbbf24" stroke="#b45309" stroke-width="0.5" />
+            <!-- 하단 네온 라인 -->
+            <rect x="24" y="202" width="152" height="5" rx="1" fill="#e879f9" opacity="0.75" filter="url(#nbNeon)" />
+            <rect x="24" y="210" width="152" height="4" rx="1" fill="#22d3ee" opacity="0.6" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="text-wrapper intro-sync">
+          <div class="line">
+            <div class="text">Even</div>
+            <div class="reflection">Even</div>
+          </div>
+          <div class="line">
+            <div class="text">rock bottom</div>
+            <div class="reflection">rock bottom</div>
+          </div>
+    <!--      <div class="line">
+            <div class="text">bottom</div>
+            <div class="reflection">bottom</div>
+          </div>  --!>
+          <div class="line">
+            <div class="text">rocks</div>
+            <div class="reflection">rocks</div>
+          </div>
+      </div>
+    </main>
+
+    <section class="scroll-spacer" aria-hidden="true"></section>
+
+    <div id="storyPanel" class="story-panel" role="dialog" aria-label="What is Noraebang?">
+      <div class="inv-envelope-wrap">
+        <div
+          id="invEnvelope"
+          class="inv-envelope"
+          role="button"
+          tabindex="0"
+          aria-label="Open invitation envelope"
+          aria-expanded="false"
+        >
+          <!-- Cartoon envelope (no speech bubble styles) -->
+          <svg
+            class="inv-envelope__svg"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 300 220"
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <rect
+              x="24"
+              y="92"
+              width="252"
+              height="102"
+              rx="10"
+              fill="#fff3a6"
+              stroke="#0f172a"
+              stroke-width="6"
+            />
+            <path
+              d="M 24 92 L 150 140 L 276 92 L 276 92 L 24 92 Z"
+              fill="#fde68a"
+              stroke="#0f172a"
+              stroke-width="6"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M 24 92 L 150 140 L 24 194 Z"
+              fill="#fcd34d"
+              stroke="#0f172a"
+              stroke-width="6"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M 276 92 L 150 140 L 276 194 Z"
+              fill="#fbbf24"
+              stroke="#0f172a"
+              stroke-width="6"
+              stroke-linejoin="round"
+            />
+            <path d="M 24 92 L 150 140 L 276 92" fill="none" stroke="#0f172a" stroke-width="6" stroke-linejoin="round" />
+            <circle cx="150" cy="136" r="0.1" fill="none" />
+          </svg>
+
+          <div class="inv-letter" id="invLetter" aria-hidden="true">
+            <div class="inv-letter__paper">
+              <div class="inv-letter__lines" aria-hidden="true"></div>
+              <div class="inv-letter__title">~ INVITATION ~</div>
+              <p class="inv-letter__text">
+                You're invited to a Noraebang (노래방) Party!<br />
+                <br />
+                What is Noraebang?<br />
+                Noraebang means “singing room” in Korean.<br />
+                <br />
+                Date: Saturday, March 28th at 2:00 PM<br />
+                Location: BOA Karaoke Room<br />
+                <br />
+                After the party, we’ll hang out at the bar together. See you there!
+              </p>
+            </div>
+          </div>
+
+          <div class="inv-envelope__center-heart" aria-hidden="true">♥</div>
+
+          <div class="inv-envelope__sparkles" aria-hidden="true">
+            <span class="inv-spark inv-spark--a"></span>
+            <span class="inv-spark inv-spark--b"></span>
+            <span class="inv-spark inv-spark--c"></span>
+            <span class="inv-spark inv-spark--d"></span>
+            <span class="inv-spark inv-spark--e"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="storyNext" class="story-actions" aria-hidden="true">
+      <a href="main.html" class="btn-on-y-va">On y va</a>
+    </div>
+
+    <p class="intro-scroll-hint" id="introScrollHint">Scroll down ↓</p>
+
+    <script>
+      const scene = document.getElementById("scene");
+      const cloudLayer = document.getElementById("cloudLayer");
+      const moveLayer = document.getElementById("moveLayer");
+      const noraLayer = document.getElementById("noraLayer");
+      const rockstar = document.querySelector(".rockstar-img");
+      const tvEffectsLayer = document.querySelector(".tv-effects-layer");
+      const textWrapper = document.querySelector(".text-wrapper");
+      const storyPanel = document.getElementById("storyPanel");
+      const storyNext = document.getElementById("storyNext");
+      const invEnvelope = document.getElementById("invEnvelope");
+      const introScrollHint = document.getElementById("introScrollHint");
+      let invitationOpened = false;
+
+      function openInvitation() {
+        if (!invEnvelope || invitationOpened) return;
+        invitationOpened = true;
+        invEnvelope.classList.add("is-open");
+        invEnvelope.setAttribute("aria-expanded", "true");
+
+        storyNext.classList.add("visible");
+        storyNext.setAttribute("aria-hidden", "false");
+      }
+
+      if (invEnvelope) {
+        invEnvelope.addEventListener("click", openInvitation);
+        invEnvelope.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openInvitation();
+          }
+        });
+      }
+
+      function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
+      }
+
+      /** 모바일 주소창 등으로 높이가 바뀔 때도 비율 계산에 쓰는 뷰포트 높이 */
+      function viewportHeight() {
+        return window.visualViewport?.height || window.innerHeight || 1;
+      }
+
+      /** noraebang·rockstar 애니메이션이 끝나는 스크롤 지점 (viewport 높이 단위) */
+      const NORA_LOCK_P = 1.85;
+
+      function applyScrollEffect() {
+        const h = viewportHeight();
+        const y = window.scrollY || window.pageYOffset || 0;
+        const p = y / h;
+
+        // cloud: 항상 스크롤에 맞춰 움직임 (이후 구간에서도 "화면만" 올라가는 느낌)
+        const cloudY = -y * 0.35;
+        cloudLayer.style.transform = "translate3d(0, 0, 0)";
+        cloudLayer.style.backgroundPosition = `0 ${cloudY}px`;
+        cloudLayer.style.opacity = "1";
+
+        // intro(tv + 반짝 + 글자): 첫 화면에서 빠르게 위로 사라짐 (moveLayer 밖 요소 동기화)
+        const introP = clamp(p, 0, 1);
+        const moveY = -introP * (h * 1.1);
+        const introFade = Math.max(0, 1 - introP * 1.15);
+        const introOpacity = String(introFade);
+        moveLayer.style.transform = `translate3d(0, ${moveY}px, 0)`;
+        moveLayer.style.opacity = introOpacity;
+        const introMove = `translate(-50%, -50%) translateY(${moveY}px)`;
+        if (tvEffectsLayer) {
+          tvEffectsLayer.style.opacity = "0.55";
+        }
+        textWrapper.style.transform = introMove;
+        textWrapper.style.opacity = introOpacity;
+
+        // rockstar: 스크롤을 내릴수록 아래로 (최대 이동량을 줄여 최종 위치를 더 위로)
+        const rockstarDrop = clamp(y * 0.095, 0, h * 0.15);
+
+        // noraebang: NORA_LOCK_P 이후에는 위치·투명도 고정 (이미지는 가만히)
+        if (p < NORA_LOCK_P) {
+          const noraP = clamp(p - 0.85, 0, 1);
+          const fadeP = clamp((p - 0.78) / 0.48, 0, 1);
+          noraLayer.style.opacity = String(fadeP);
+          const noraShift = h * 0.3;
+          const noraY = noraShift - noraP * noraShift;
+          noraLayer.style.transform = `translate3d(0, ${noraY}px, 0)`;
+
+          const rotStart = 0.6;
+          const rotSpan = 0.8;
+          const rotP = clamp((p - rotStart) / rotSpan, 0, 1);
+          const deg = rotP * 180;
+          rockstar.style.transform = `translate(-50%, -50%) translateY(${rockstarDrop}px) rotate(${deg}deg)`;
+        } else {
+          noraLayer.style.opacity = "1";
+          noraLayer.style.transform = "translate3d(0, 0, 0)";
+          rockstar.style.transform = `translate(-50%, -50%) translateY(${rockstarDrop}px) rotate(180deg)`;
+        }
+
+        // 스크롤 끝 근처에서 글씨 창 표시
+        const maxScroll = Math.max(
+          0,
+          document.documentElement.scrollHeight - window.innerHeight
+        );
+        const nearEnd = maxScroll > 0 && y >= maxScroll - h * 0.22;
+        storyPanel.classList.toggle("visible", nearEnd);
+
+        if (!nearEnd) {
+          storyNext.classList.remove("visible");
+          storyNext.setAttribute("aria-hidden", "true");
+        } else if (invitationOpened) {
+          storyNext.classList.add("visible");
+          storyNext.setAttribute("aria-hidden", "false");
+        } else {
+          storyNext.classList.remove("visible");
+          storyNext.setAttribute("aria-hidden", "true");
+        }
+
+        if (introScrollHint) {
+          const sy = window.scrollY || window.pageYOffset || 0;
+          introScrollHint.classList.toggle("is-hidden", sy > 56);
+        }
+      }
+
+      // 첫 진입 시 이전 스크롤 복원으로 시작 장면이 숨는 문제 방지
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+      window.scrollTo(0, 0);
+
+      window.addEventListener("scroll", applyScrollEffect, { passive: true });
+      window.addEventListener("resize", applyScrollEffect);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", applyScrollEffect);
+      }
+      applyScrollEffect();
+    </script>
+  </body>
+</html>
+

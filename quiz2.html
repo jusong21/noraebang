@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz 2 / 10 — Goodbye Party</title>
+    <link
+      rel="preload"
+      href="fonts/DungGeunMo/DungGeunMo.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="images/cloud.jpg" as="image" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/quiz-room.css" />
+    <script src="js/quiz-room.js" defer></script>
+  </head>
+  <body class="quiz-room-page">
+    <div class="quiz-room">
+
+      <div class="quiz-rig">
+        <div class="quiz-mirrorball-wrap" aria-hidden="true">
+          <div class="quiz-mirrorball-chain"></div>
+          <div class="quiz-mirrorball">
+            <div class="quiz-mirrorball-sparkle"></div>
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <radialGradient id="mbGlow2" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#f8fafc" />
+                  <stop offset="45%" stop-color="#94a3b8" />
+                  <stop offset="100%" stop-color="#475569" />
+                </radialGradient>
+                <pattern id="mbTiles2" width="8" height="8" patternUnits="userSpaceOnUse">
+                  <rect width="8" height="8" fill="#64748b" />
+                  <rect x="0" y="0" width="4" height="4" fill="#cbd5e1" />
+                  <rect x="4" y="4" width="4" height="4" fill="#94a3b8" />
+                  <rect x="4" y="0" width="4" height="4" fill="#e2e8f0" opacity="0.85" />
+                  <rect x="0" y="4" width="4" height="4" fill="#475569" />
+                </pattern>
+              </defs>
+              <circle cx="32" cy="32" r="28" fill="url(#mbTiles2)" />
+              <circle cx="32" cy="32" r="28" fill="url(#mbGlow2)" opacity="0.42" />
+              <circle cx="32" cy="32" r="28" fill="none" stroke="#334155" stroke-width="1.2" />
+              <ellipse cx="24" cy="22" rx="10" ry="6" fill="rgba(255,255,255,0.35)" opacity="0.7" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="quiz-screen-wrap">
+          <div class="quiz-screen-bezel">
+            <div class="quiz-screen-inner">
+              <p class="quiz-room__welcome">
+                Welcome, <span id="quizGreeting">—</span>
+              </p>
+              <div class="quiz-room__progress" aria-hidden="true">
+                Question <strong>2</strong> / <span>10</span>
+              </div>
+              <p class="quiz-room__placeholder">
+                <b>Q2.</b> What is Juhee’s MBTI type?
+              </p>
+              <p class="quiz-room__hint">Choose A–D below.</p>
+            </div>
+            <p class="quiz-tv-brand">SAMSUNG</p>
+          </div>
+        </div>
+
+        <div class="quiz-room__choices quiz-room__choices--shuffle" aria-label="Answer choices">
+          <div class="quiz-choice-slot" data-correct="true">A. ENFP</div>
+          <div class="quiz-choice-slot">B. ENTP</div>
+          <div class="quiz-choice-slot">C. ESFP</div>
+          <div class="quiz-choice-slot">D. ESTP</div>
+        </div>
+
+        <div class="quiz-machine" role="region" aria-label="노래방 리모컨">
+          <div class="quiz-machine__body">
+            <div class="quiz-machine__led"></div>
+            <nav class="quiz-nav quiz-machine__nav" aria-label="Quiz navigation">
+              <div class="quiz-machine__knobs quiz-machine__knobs--nav">
+                <a class="quiz-machine__nav-btn quiz-machine__nav-btn--prev" href="quiz1.html">← Q1</a>
+                <div class="quiz-machine__knob"></div>
+                <div class="quiz-machine__knob"></div>
+                <div class="quiz-machine__knob"></div>
+                <a class="quiz-machine__nav-btn quiz-machine__nav-btn--next" href="quiz3.html">Next →</a>
+              </div>
+              <div class="quiz-machine__slot"></div>
+            </nav>
+            <div class="quiz-machine__dock" aria-label="Quick navigation">
+                <a class="quiz-machine__dock-btn" href="main.html" title="Main menu" aria-label="Main menu">
+                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </a>
+                <a class="quiz-machine__dock-btn" href="index.html" title="Opening" aria-label="Opening scene">
+                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const NICK_KEY = "partyNickname";
+      const DEFAULT_NICK = "Your name";
+      const g = document.getElementById("quizGreeting");
+      let nick = sessionStorage.getItem(NICK_KEY);
+      if (nick === "Guest") {
+        nick = DEFAULT_NICK;
+        sessionStorage.setItem(NICK_KEY, nick);
+      }
+      g.textContent = (nick || DEFAULT_NICK).trim() || DEFAULT_NICK;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,453 @@
+/**
+ * Noraebang remote shell — shared by main.html & mini-game.html
+ * (same size, shape, and inner chrome; only content differs per page)
+ */
+
+/*
+ * 리모콘을 뷰포트 중앙에 두는 고정 셸.
+ * body에 grid+padding만 두면 문서 세로 스크롤이 생길 때 스크롤바 유무·96vw 재계산이 바뀌며
+ * main으로 돌아올 때 / 새로고침 시 한 프레임 “두근”거릴 수 있음.
+ * 미니게임 .overlay 와 동일한 박스 모델(고정 full-viewport 그리드 + 패딩).
+ */
+.remote-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  justify-content: center;
+  padding: 24px 16px 32px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 미니게임: 반투명·블러 오버레이 (위 셸에 얹음) */
+.remote-shell--game-overlay {
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(2px);
+}
+
+main.remote {
+  margin: 0;
+  max-width: 100%;
+}
+
+.remote {
+  /* 모든 리모콘 공통: 뷰포트 단위 없이 px 고정 (좁은 화면은 max-width 로만 축소) */
+  width: 392px;
+  max-width: 100%;
+  /* 위: 상단 나사(::before/::after, top ~12px)와 첫 검정 박스 간격. 아래: 하단 여백 축소 */
+  padding: 26px 18px 13px;
+  border-radius: 22px 22px 26px 26px;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  background: linear-gradient(165deg, #f5f5f7 0%, #e4e4e8 35%, #d8d8de 100%);
+  border: 3px solid #c8c8d0;
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.06),
+    0 14px 36px rgba(0, 0, 0, 0.2),
+    0 5px 0 #a8a8b0;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  /* 고정 높이: 하단 검정 패널 끝이 메인/미니게임 동일하게 (LCD~Back 사이를 패널이 채움) */
+  min-height: 500px;
+  height: 500px;
+}
+
+.remote__brand,
+.remote__lcd {
+  flex-shrink: 0;
+}
+
+.remote::before,
+.remote::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  top: 12px;
+  background: radial-gradient(circle at 30% 30%, #c0c0c8, #8a8a94);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+.remote::before {
+  left: 16px;
+}
+.remote::after {
+  right: 16px;
+}
+
+.remote__brand {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+  padding: 7px 10px 8px;
+  min-height: 58px;
+  border-radius: 10px;
+  background: #0a0a0a;
+  border: 2px solid #1a1a1a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+.remote__brand-main {
+  display: block;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  color: #ffd54a;
+  text-shadow:
+    0 0 8px rgba(255, 200, 60, 0.45),
+    0 0 16px rgba(255, 180, 40, 0.2);
+}
+.remote__brand-sub {
+  display: block;
+  margin-top: 3px;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 0.22em;
+  color: rgba(255, 213, 74, 0.55);
+}
+
+.remote__button-panel {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 20px 12px;
+  padding-bottom: 46px;
+  margin-bottom: 0;
+  background: #0a0a0a;
+  border: 2px solid #1a1a1a;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* 남는 세로를 모두 채워 하단 끝선이 항상 동일 (긴 설명은 박스 안 스크롤) */
+  flex: 1 1 0;
+  min-height: 232px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  text-align: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.remote__button-panel .remote__keys {
+  margin-top: 10px;
+}
+
+/* 미니게임 설명(시작) 화면: 설명 문단과 START 버튼 사이 여백 */
+.remote__button-panel--centered:not(.remote__button-panel--results) .remote__keys {
+  margin-top: 22px;
+}
+
+.remote__button-panel--centered .remote__hint {
+  text-align: center;
+}
+.remote__button-panel--centered .remote__keys {
+  width: 100%;
+}
+
+/* 게임 종료: 랭킹 블록은 위부터 쌓기 */
+.remote__button-panel--centered.remote__button-panel--results {
+  justify-content: flex-start;
+}
+
+.remote__button-panel .rank-section {
+  display: none;
+  width: 100%;
+  margin-top: 0;
+  padding-top: 4px;
+  border-top: none;
+  flex-shrink: 0;
+  min-height: 0;
+}
+.remote__button-panel .rank-section.show {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.remote__button-panel .rank-title {
+  flex-shrink: 0;
+  text-align: center;
+  margin: 0 0 6px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 213, 74, 0.25);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: rgba(255, 213, 74, 0.55);
+}
+.remote__button-panel .rank-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* 짧은 창만 보이고, 스크롤로 전체 기록 확인 — 구분선 제거로 세로 여유 확보 */
+  max-height: 96px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.remote__button-panel .rank-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(100, 255, 140, 0.12);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.92);
+}
+.remote__button-panel .rank-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+  color: rgba(100, 255, 140, 0.9);
+}
+.remote__button-panel .rank-score {
+  white-space: nowrap;
+  color: #ffd54a;
+}
+
+/* main: fake keys row */
+.remote__fake-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: stretch;
+  width: 100%;
+}
+.remote__fake-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 9px 6px 10px;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: #2c2c32;
+  background: linear-gradient(180deg, #ececf0 0%, #c6c6d0 100%);
+  border: 1px solid #9a9aa4;
+  border-radius: 10px;
+  box-shadow:
+    0 3px 0 #8e8e98,
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.95;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+}
+.remote__fake-btn:hover {
+  filter: brightness(1.04);
+}
+.remote__fake-btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 0 0 #8e8e98,
+    inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.remote__lcd {
+  padding: 8px 12px 10px;
+  min-height: 70px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #0d100c 0%, #050806 100%);
+  border: 2px solid #2a2a2a;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.85);
+  margin-bottom: 11px;
+}
+.remote__lcd label {
+  display: block;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: rgba(100, 255, 140, 0.55);
+  margin-bottom: 3px;
+}
+.remote__lcd input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 9px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(0, 40, 20, 0.45);
+  color: #7cff9a;
+  font-family: "DungGeunMo", ui-monospace, monospace;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  outline: none;
+  text-shadow: 0 0 10px rgba(0, 255, 120, 0.45);
+  box-shadow: inset 0 0 12px rgba(0, 80, 40, 0.25);
+}
+.remote__lcd input::placeholder {
+  color: rgba(100, 255, 150, 0.25);
+}
+.remote__lcd input:focus {
+  background: rgba(0, 55, 28, 0.55);
+  box-shadow:
+    inset 0 0 14px rgba(0, 100, 60, 0.35),
+    0 0 0 1px rgba(0, 255, 150, 0.25);
+}
+
+.remote__keys {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.remote__key {
+  display: block;
+  position: relative;
+  padding: 13px 14px 14px;
+  border-radius: 12px;
+  text-align: center;
+  text-decoration: none;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.22),
+    inset 0 2px 0 rgba(255, 255, 255, 0.22);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+}
+button.remote__key {
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.remote__key:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.remote__key:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.remote__key:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+}
+.remote__key--mini {
+  background: linear-gradient(180deg, #a78bfa 0%, #6d28d9 55%, #5b21b6 100%);
+}
+.remote__key--quiz {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 55%, #0369a1 100%);
+}
+.remote__key--guest {
+  background: linear-gradient(180deg, #fb7185 0%, #e11d48 55%, #be123c 100%);
+}
+
+.remote__hint {
+  margin: 10px 0 0;
+  padding: 0;
+  text-align: center;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #fff;
+}
+.remote__button-panel > .remote__hint:first-child {
+  margin-top: 0;
+}
+.remote__hint b {
+  color: #ffd54a;
+}
+
+.remote__back {
+  margin-top: auto;
+  padding-top: 4px;
+  padding-bottom: 0;
+  text-align: center;
+  flex-shrink: 0;
+}
+.remote__back a {
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-size: 14px;
+  color: #2563eb;
+  text-decoration: none;
+}
+.remote__back a:hover {
+  text-decoration: underline;
+}
+
+/* 오른쪽 하단: 메인(집) · 오프닝(재생) — 검은 패널 안에 두려면 .remote__button-panel 안에 배치 */
+.remote__dock {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.remote__button-panel .remote__dock {
+  right: 12px;
+  bottom: 10px;
+}
+
+/* 퀴즈 인트로: 설명 글·강조를 LCD/퀴즈와 같은 하늘색 톤으로 */
+.quiz-intro-page .remote__hint {
+  color: rgba(226, 232, 240, 0.92);
+}
+.quiz-intro-page .remote__hint b {
+  color: #7dd3fc;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+}
+.remote__dock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #2c2c32;
+  background: linear-gradient(180deg, #ececf0 0%, #c6c6d0 100%);
+  border: 1px solid #9a9aa4;
+  box-shadow:
+    0 3px 0 #8e8e98,
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition:
+    filter 0.08s ease,
+    transform 0.08s ease;
+}
+.remote__dock-btn:hover {
+  filter: brightness(1.06);
+}
+.remote__dock-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 0 0 #8e8e98,
+    inset 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.remote__dock-btn svg {
+  display: block;
+}

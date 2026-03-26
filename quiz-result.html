@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Result — Goodbye Party</title>
+    <link
+      rel="preload"
+      href="fonts/DungGeunMo/DungGeunMo.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="images/cloud.jpg" as="image" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/quiz-room.css" />
+  </head>
+  <body class="quiz-room-page quiz-result-page">
+    <div class="quiz-room">
+      <div class="quiz-rig">
+        <div class="quiz-mirrorball-wrap" aria-hidden="true">
+          <div class="quiz-mirrorball-chain"></div>
+          <div class="quiz-mirrorball">
+            <div class="quiz-mirrorball-sparkle"></div>
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <radialGradient id="mbGlowResult" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#f8fafc" />
+                  <stop offset="45%" stop-color="#94a3b8" />
+                  <stop offset="100%" stop-color="#475569" />
+                </radialGradient>
+                <pattern id="mbTilesResult" width="8" height="8" patternUnits="userSpaceOnUse">
+                  <rect width="8" height="8" fill="#64748b" />
+                  <rect x="0" y="0" width="4" height="4" fill="#cbd5e1" />
+                  <rect x="4" y="4" width="4" height="4" fill="#94a3b8" />
+                  <rect x="4" y="0" width="4" height="4" fill="#e2e8f0" opacity="0.85" />
+                  <rect x="0" y="4" width="4" height="4" fill="#475569" />
+                </pattern>
+              </defs>
+              <circle cx="32" cy="32" r="28" fill="url(#mbTilesResult)" />
+              <circle cx="32" cy="32" r="28" fill="url(#mbGlowResult)" opacity="0.42" />
+              <circle cx="32" cy="32" r="28" fill="none" stroke="#334155" stroke-width="1.2" />
+              <ellipse cx="24" cy="22" rx="10" ry="6" fill="rgba(255,255,255,0.35)" opacity="0.7" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="quiz-screen-wrap">
+          <div class="quiz-screen-bezel">
+            <div class="quiz-screen-inner">
+              <p class="quiz-room__welcome">
+                Welcome, <span id="quizGreeting">—</span>
+              </p>
+              <div class="quiz-room__progress" aria-hidden="true">
+                Quiz <strong>RESULT</strong>
+              </div>
+              <p class="quiz-room__question" id="quizScoreLine">점수 계산 중…</p>
+              <p class="quiz-room__hint quiz-room__hint--result-summary" id="quizSummary" style="display: none">
+                답안을 불러오는 중입니다…
+              </p>
+              <div
+                id="noraeComment"
+                class="quiz-norae-comment quiz-norae-comment--in-screen"
+                style="display: none"
+                role="status"
+                aria-live="polite"
+              >
+                <span class="quiz-norae-comment__label">SCORE COMMENT</span>
+                <span id="noraeCommentText"></span>
+              </div>
+            </div>
+            <p class="quiz-tv-brand">SAMSUNG</p>
+          </div>
+        </div>
+
+        <div class="quiz-room__choices quiz-room__choices--ranking" aria-label="Ranking">
+          <div class="quiz-room__ranking-wrap quiz-room__ranking-wrap--grid-span">
+            <div class="quiz-room__ranking-title">Ranking</div>
+            <ol class="quiz-room__ranking quiz-ranking-list" id="quizRankingList"></ol>
+          </div>
+        </div>
+
+        <div class="quiz-machine" role="region" aria-label="노래방 리모컨">
+          <div class="quiz-machine__body">
+            <div class="quiz-machine__led"></div>
+            <nav class="quiz-nav quiz-machine__nav quiz-machine__nav--result" aria-label="결과 화면 이동">
+              <div class="quiz-machine__knobs quiz-machine__knobs--nav">
+                <a class="quiz-machine__nav-btn quiz-machine__nav-btn--prev" href="quiz10.html">← Q10</a>
+                <div class="quiz-machine__knob"></div>
+                <div class="quiz-machine__knob"></div>
+                <div class="quiz-machine__knob"></div>
+                <a class="quiz-machine__nav-btn quiz-machine__nav-btn--next" href="quizintro.html">Retake quiz</a>
+              </div>
+              <div class="quiz-machine__slot"></div>
+            </nav>
+            <div class="quiz-machine__dock" aria-label="Quick navigation">
+                <a class="quiz-machine__dock-btn" href="main.html" title="Main menu" aria-label="Main menu">
+                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </a>
+                <a class="quiz-machine__dock-btn" href="index.html" title="Opening" aria-label="Opening scene">
+                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const KEY = "quizAnswers";
+        const RANK_KEY = "quizRanking";
+        const NICK_KEY = "partyNickname";
+        const DEFAULT_NICK = "Your name";
+
+        const g = document.getElementById("quizGreeting");
+        let nick = sessionStorage.getItem(NICK_KEY);
+        if (nick === "Guest") {
+          nick = DEFAULT_NICK;
+          sessionStorage.setItem(NICK_KEY, nick);
+        }
+        g.textContent = (nick || DEFAULT_NICK).trim() || DEFAULT_NICK;
+
+        function getAnswers() {
+          try {
+            const raw = sessionStorage.getItem(KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+          } catch {
+            return null;
+          }
+        }
+
+        function countCorrect(answers) {
+          if (!answers || typeof answers !== "object") return 0;
+          let n = 0;
+          for (let i = 1; i <= 10; i++) {
+            const legacy = answers["q" + i];
+            if (legacy === true) {
+              n++;
+              continue;
+            }
+            const pageKey = "quiz" + i + ".html";
+            const entry = answers[pageKey];
+            if (entry && typeof entry === "object" && entry.correct === true) n++;
+          }
+          return n;
+        }
+
+        function pointsFromCorrect(correct) {
+          return Math.min(100, Math.max(0, correct * 10));
+        }
+
+        function noraeCommentForPoints(points) {
+          const p = Math.min(100, Math.max(0, points));
+          if (p === 100) {
+            return { text: "가수인가요~?! 만점! 소름 돋았어요!", tone: "s" };
+          }
+          if (p >= 90) {
+            return { text: "거의 만점! 노래방 주인이 긴장했어요~", tone: "s" };
+          }
+          if (p >= 80) {
+            return { text: "실력자시네요! 앵콜 각이에요!", tone: "s" };
+          }
+          if (p >= 70) {
+            return { text: "괜찮아요~ 한 곡 더 어때요?", tone: "s" };
+          }
+          if (p >= 60) {
+            return { text: "평타는 쳤어요! 연습 한 번 더!", tone: "warn" };
+          }
+          if (p >= 50) {
+            return { text: "분발하세요! 다음 곡은 더 잘할 수 있어요!", tone: "warn" };
+          }
+          if (p >= 40) {
+            return { text: "음… 오늘 컨디션 안 좋으신가요?", tone: "warn" };
+          }
+          if (p >= 30) {
+            return { text: "청중이 조용해졌어요… (쿨럭)", tone: "bad" };
+          }
+          if (p >= 20) {
+            return { text: "마이크 테스트부터 다시…!", tone: "bad" };
+          }
+          if (p >= 10) {
+            return { text: "이건 점수라기보다… 연민이에요.", tone: "bad" };
+          }
+          return { text: "다음엔… 같이 불러요. (응원)", tone: "bad" };
+        }
+
+        function rowPoints(row) {
+          if (row && typeof row.points100 === "number") return row.points100;
+          const s = row && typeof row.score === "number" ? row.score : 0;
+          if (s <= 10) return s * 10;
+          return s;
+        }
+
+        function loadRanking() {
+          try {
+            const raw = localStorage.getItem(RANK_KEY);
+            if (!raw) return [];
+            const arr = JSON.parse(raw);
+            return Array.isArray(arr) ? arr : [];
+          } catch {
+            return [];
+          }
+        }
+
+        function saveRanking(list) {
+          try {
+            localStorage.setItem(RANK_KEY, JSON.stringify(list));
+          } catch {
+            /* ignore */
+          }
+        }
+
+        function normalizeNick(input) {
+          let nick = String(input || "").trim();
+
+          // (1) 앞에 "1. ", "2. "처럼 순번이 반복 저장되어 있으면 전부 제거
+          nick = nick.replace(/^\s*(?:\d+\s*\.?\s*)+/, "");
+
+          // (2) 대시 뒤의 점수/100 같은 부가정보 제거
+          nick = nick.replace(/\s*[—–-].*$/, "");
+
+          // (3) 혹시 남아있는 " / 100" 제거
+          nick = nick.replace(/\s*\/\s*\d+\s*$/, "");
+
+          nick = nick.trim();
+          if (!nick || nick === "익명") return "Guest";
+          return nick.slice(0, 24);
+        }
+
+        const answers = getAnswers();
+        const correct = countCorrect(answers);
+        const points = pointsFromCorrect(correct);
+
+        const scoreLine = document.getElementById("quizScoreLine");
+        const summary = document.getElementById("quizSummary");
+        const noraeEl = document.getElementById("noraeComment");
+        const noraeText = document.getElementById("noraeCommentText");
+        const listEl = document.getElementById("quizRankingList");
+
+        if (!answers) {
+          scoreLine.textContent = "저장된 답안이 없습니다.";
+          summary.innerHTML =
+            "퀴즈를 먼저 풀어 주세요. <b>quizintro.html</b>에서 시작할 수 있어요.";
+          summary.style.display = "";
+          noraeEl.style.display = "none";
+          listEl.innerHTML = "";
+          return;
+        }
+
+        scoreLine.textContent = points + "점";
+        summary.textContent = "";
+        summary.style.display = "none";
+
+        const nc = noraeCommentForPoints(points);
+        noraeText.textContent = nc.text;
+        noraeEl.className =
+          "quiz-norae-comment quiz-norae-comment--in-screen quiz-norae-comment--" +
+          (nc.tone || "warn");
+        noraeEl.style.display = "block";
+
+        let ranking = loadRanking();
+        const nickFromAnswers = normalizeNick(
+          (answers && typeof answers.nick === "string" && answers.nick.trim()) || ""
+        );
+        ranking.push({
+          nick: nickFromAnswers,
+          points100: points,
+          answered: Object.keys(answers).filter(function (k) {
+            if (k === "nick") return false;
+            if (k.startsWith("q")) return true;
+            return /^quiz\d+\.html$/i.test(k);
+          }).length,
+          timestamp: Date.now(),
+        });
+        ranking.sort(function (a, b) {
+          return rowPoints(b) - rowPoints(a);
+        });
+        ranking = ranking.slice(0, 20);
+        saveRanking(ranking);
+
+        listEl.innerHTML = "";
+        ranking.forEach(function (row) {
+          const li = document.createElement("li");
+          const pts = rowPoints(row);
+          const nick = normalizeNick(row && row.nick);
+          const safeNick = String(nick || "Guest").replace(/^\s*(?:\d+\s*\.?\s*)+/, "");
+          li.textContent = safeNick + " — " + pts + "점";
+          listEl.appendChild(li);
+        });
+      })();
+    </script>
+  </body>
+</html>

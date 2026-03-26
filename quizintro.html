@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz — Intro — Goodbye Party</title>
+    <link
+      rel="preload"
+      href="fonts/DungGeunMo/DungGeunMo.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="images/cloud.jpg" as="image" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/remote.css" />
+    <style>
+      html {
+        scrollbar-gutter: stable;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        box-sizing: border-box;
+        min-height: 100vh;
+        min-height: 100svh;
+        overflow: hidden;
+        background: #111 url("images/cloud.jpg") repeat;
+        background-size: 180px 180px;
+        font-family: "DungGeunMo", system-ui, sans-serif;
+        color: #333;
+      }
+      .wrap {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+    </style>
+  </head>
+  <body class="quiz-intro-page">
+    <div class="wrap">
+      <div class="remote-shell remote-shell--game-overlay">
+        <main class="remote" aria-label="Quiz remote">
+          <div class="remote__brand">
+            <span class="remote__brand-main">Quiz</span>
+            <span class="remote__brand-sub">ROOM REMOTE</span>
+          </div>
+
+          <div class="remote__lcd">
+            <label for="quizNick">USER ID</label>
+            <input
+              id="quizNick"
+              type="text"
+              maxlength="24"
+              placeholder="__________________"
+              autocomplete="nickname"
+            />
+          </div>
+
+          <div class="remote__button-panel remote__button-panel--centered">
+            <p class="remote__hint">
+              10 questions, all about me.<br />
+              Get them wrong… and I will judge you 👀<br />
+              <br />
+              Check your nickname, then tap <b>START</b>.
+            </p>
+            <div class="remote__keys">
+              <a
+                href="quiz1.html"
+                class="remote__key remote__key--quiz"
+                id="quizStartBtn"
+                >START</a
+              >
+            </div>
+
+            <div class="remote__dock" aria-label="Quick navigation">
+              <a class="remote__dock-btn" href="main.html" title="Main menu" aria-label="Main menu">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </a>
+              <a class="remote__dock-btn" href="index.html" title="Opening" aria-label="Opening scene">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              </a>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const NICK_KEY = "partyNickname";
+      const DEFAULT_NICK = "Your name";
+
+      const quizNick = document.getElementById("quizNick");
+      const quizStartBtn = document.getElementById("quizStartBtn");
+
+      function saveNick() {
+        const v = (quizNick.value || "").trim().slice(0, 24);
+        sessionStorage.setItem(NICK_KEY, v || DEFAULT_NICK);
+      }
+
+      function resetQuizRun() {
+        sessionStorage.removeItem("quizAnswers");
+        sessionStorage.removeItem("quizRankingSubmitted");
+      }
+
+      let saved = sessionStorage.getItem(NICK_KEY);
+      if (saved === "Guest") {
+        saved = DEFAULT_NICK;
+        sessionStorage.setItem(NICK_KEY, saved);
+      }
+      if (saved) quizNick.value = saved;
+
+      quizNick.addEventListener("change", saveNick);
+      quizStartBtn.addEventListener("click", () => {
+        saveNick();
+        resetQuizRun();
+      });
+    </script>
+  </body>
+</html>
