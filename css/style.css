@@ -1222,6 +1222,14 @@ body.index-page .rockstar-img {
 }
 
 @media (max-width: 640px) {
+  .index-page .story-panel {
+    top: 51%;
+  }
+
+  .index-page .story-panel.visible {
+    transform: translate(-50%, calc(-50% + 1vh));
+  }
+
   body.index-page .rockstar-img {
     width: min(98vmin, 760px) !important;
     max-width: min(100vw, 760px) !important;

@@ -187,7 +187,7 @@ main.remote {
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 213, 74, 0.25);
-  font-size: 10px;
+  font-size: 15px;
   letter-spacing: 0.22em;
   color: rgba(255, 213, 74, 0.55);
 }
@@ -212,7 +212,7 @@ main.remote {
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(100, 255, 140, 0.12);
-  font-size: 10px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.92);
 }
 .remote__button-panel .rank-name {
@@ -368,7 +368,7 @@ button.remote__key {
   padding: 0;
   text-align: center;
   font-family: "DungGeunMo", system-ui, sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.45;
   color: #fff;
 }
@@ -416,6 +416,8 @@ button.remote__key {
 /* 퀴즈 인트로: 설명 글·강조를 LCD/퀴즈와 같은 하늘색 톤으로 */
 .quiz-intro-page .remote__hint {
   color: rgba(226, 232, 240, 0.92);
+  font-size: 15px;
+  line-height: 1.55;
 }
 .quiz-intro-page .remote__hint b {
   color: #7dd3fc;

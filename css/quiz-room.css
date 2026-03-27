@@ -245,7 +245,7 @@ html:has(body.quiz-room-page) {
   text-align: left;
   width: 100%;
   max-height: 100%;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.45;
   overflow-y: scroll;
   scrollbar-gutter: stable;
@@ -592,7 +592,7 @@ html:has(body.quiz-room-page) {
 
 .quiz-room__hint {
   margin: 0;
-  font-size: 11px;
+  font-size: 15px;
   line-height: 1.45;
   color: rgba(148, 163, 184, 0.75);
   text-align: center;
@@ -655,7 +655,7 @@ html:has(body.quiz-room-page) {
     0 0 0 1px rgba(15, 23, 42, 0.8),
     0 0 24px rgba(56, 189, 248, 0.2),
     inset 0 0 20px rgba(56, 189, 248, 0.06);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: 0.02em;
   line-height: 1.45;
@@ -666,7 +666,7 @@ html:has(body.quiz-room-page) {
 }
 .quiz-norae-comment__label {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.2em;
   color: rgba(125, 211, 252, 0.75);
@@ -774,7 +774,7 @@ html:has(body.quiz-room-page) {
 }
 
 .quiz-room__ranking-title {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.12em;
   color: rgba(148, 163, 184, 0.95);
@@ -786,9 +786,10 @@ html:has(body.quiz-room-page) {
 
 .quiz-room__ranking-wrap--grid-span .quiz-room__ranking {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 6px;
+  list-style-position: inside;
   text-align: left;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.45;
   color: rgba(203, 213, 225, 0.92);
   flex: 1 1 auto;
