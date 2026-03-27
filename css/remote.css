@@ -451,3 +451,18 @@ button.remote__key {
 .remote__dock-btn svg {
   display: block;
 }
+
+/* 모바일: 리모콘이 화면 가장자리에 딱 붙지 않게 좌우 여백 확대 */
+@media (max-width: 520px) {
+  .remote-shell {
+    padding-left: max(22px, env(safe-area-inset-left, 0px));
+    padding-right: max(22px, env(safe-area-inset-right, 0px));
+    padding-top: 20px;
+    padding-bottom: max(26px, env(safe-area-inset-bottom, 0px));
+  }
+
+  main.remote {
+    width: min(392px, calc(100vw - 44px));
+    max-width: min(392px, calc(100vw - 44px));
+  }
+}

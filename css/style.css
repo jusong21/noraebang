@@ -31,7 +31,31 @@ body.index-page .story-actions,
   font-family: "BM Kkubulim", "DungGeunMo", system-ui, sans-serif;
 }
 
-/* 인트로: 스크롤 유도 (하단 고정) */
+/* 인트로: 스크롤 유도 — TV 아래·눈에 띄게 (index만) */
+body.index-page .intro-scroll-hint {
+  position: fixed;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  top: calc(50vh + min(26vh, 200px));
+  transform: translate(-50%, 0);
+  z-index: 25;
+  margin: 0;
+  padding: 10px 18px;
+  font-size: clamp(15px, 4.2vw, 22px);
+  font-weight: 800;
+  font-family: "BM Kkubulim", "DungGeunMo", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow:
+    0 1px 12px rgba(0, 0, 0, 0.65),
+    0 0 20px rgba(56, 189, 248, 0.25);
+  pointer-events: none;
+  opacity: 0.95;
+  transition: opacity 0.35s ease;
+  white-space: nowrap;
+}
+
 .intro-scroll-hint {
   position: fixed;
   left: 50%;
@@ -490,15 +514,16 @@ body.index-page .tv-img {
 }
 
 .index-page .rockstar-img {
-  width: min(94vw, 480px);
-  max-width: min(98vw, 500px);
-  max-height: min(92vh, 640px);
+  width: min(88vw, 520px);
+  max-width: min(94vw, 560px);
+  max-height: min(88vh, 640px);
 }
 
 /* 오프닝 타이틀 — Y2K(크롬·네온·왜곡) */
 .index-page .text-wrapper .line {
   transform: skewX(-5deg);
-  margin-bottom: -22px;
+  display: block;
+  margin-bottom: 0.28em;
 }
 
 .index-page .text {
@@ -507,7 +532,7 @@ body.index-page .tv-img {
   font-style: italic;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  line-height: 1.05;
+  line-height: 1.12;
   background: linear-gradient(
     110deg,
     #ec4899 0%,
@@ -533,7 +558,7 @@ body.index-page .tv-img {
   font-style: italic;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  line-height: 1.05;
+  line-height: 1.12;
   background: linear-gradient(
     110deg,
     #ec4899 0%,
@@ -552,7 +577,7 @@ body.index-page .tv-img {
   animation: index-y2k-shimmer 4s ease-in-out infinite alternate;
   transform: scaleY(-1);
   opacity: 0.52;
-  margin-top: -18px;
+  margin-top: -14px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 }
@@ -1180,9 +1205,33 @@ body.index-page .nora-layer {
 }
 
 body.index-page .rockstar-img {
-  width: min(46vw, 400px) !important;
-  max-width: min(92vw, 500px) !important;
-  max-height: min(90vh, 640px) !important;
+  width: min(82vw, 540px) !important;
+  max-width: min(94vw, 580px) !important;
+  max-height: min(86vh, 680px) !important;
   /* TV(moveLayer 5) 뒤, 노래방(2) 앞 */
   z-index: 4 !important;
+}
+
+/* 모바일: 타이틀 줄 간격·자간 (겹침 완화) */
+@media (max-width: 640px) {
+  .index-page .text,
+  .index-page .reflection {
+    font-size: clamp(17px, 5.1vw, 40px);
+    letter-spacing: 0.1em;
+    line-height: 1.18;
+  }
+
+  .index-page .text-wrapper .line {
+    margin-bottom: 0.42em;
+  }
+
+  .index-page .reflection {
+    margin-top: -10px;
+  }
+
+  body.index-page .intro-scroll-hint {
+    top: calc(50vh + min(22vh, 170px));
+    font-size: clamp(16px, 4.8vw, 20px);
+    padding: 12px 20px;
+  }
 }
