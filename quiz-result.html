@@ -154,36 +154,36 @@
         function noraeCommentForPoints(points) {
           const p = Math.min(100, Math.max(0, points));
           if (p === 100) {
-            return { text: "가수인가요~?! 만점! 소름 돋았어요!", tone: "s" };
+            return { text: "Professional guesser 👑", tone: "s" };
           }
           if (p >= 90) {
-            return { text: "거의 만점! 노래방 주인이 긴장했어요~", tone: "s" };
+            return { text: "Mind reader 🔮", tone: "s" };
           }
           if (p >= 80) {
-            return { text: "실력자시네요! 앵콜 각이에요!", tone: "s" };
+            return { text: "Loveya ❤️", tone: "s" };
           }
           if (p >= 70) {
-            return { text: "괜찮아요~ 한 곡 더 어때요?", tone: "s" };
+            return { text: "Good job 😎", tone: "s" };
           }
           if (p >= 60) {
-            return { text: "평타는 쳤어요! 연습 한 번 더!", tone: "warn" };
+            return { text: "You're surviving 🤓", tone: "warn" };
           }
           if (p >= 50) {
-            return { text: "분발하세요! 다음 곡은 더 잘할 수 있어요!", tone: "warn" };
+            return { text: "Halfway there 😇", tone: "warn" };
           }
           if (p >= 40) {
-            return { text: "음… 오늘 컨디션 안 좋으신가요?", tone: "warn" };
+            return { text: "I'm kinda judging you... just a little 🙊", tone: "warn" };
           }
           if (p >= 30) {
-            return { text: "청중이 조용해졌어요… (쿨럭)", tone: "bad" };
+            return { text: "Are you still my friend? 🤔", tone: "bad" };
           }
           if (p >= 20) {
-            return { text: "마이크 테스트부터 다시…!", tone: "bad" };
+            return { text: "Are you still my friend? 🤔", tone: "bad" };
           }
           if (p >= 10) {
-            return { text: "이건 점수라기보다… 연민이에요.", tone: "bad" };
+            return { text: "Who are you? 💩", tone: "bad" };
           }
-          return { text: "다음엔… 같이 불러요. (응원)", tone: "bad" };
+          return { text: "Who are you? 😡", tone: "bad" };
         }
 
         function rowPoints(row) {

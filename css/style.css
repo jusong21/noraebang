@@ -513,17 +513,18 @@ body.index-page .tv-img {
   display: block;
 }
 
+/* vmin: 폰·PC에서 비슷한 비율로 보이게 (vw만 쓰면 기기마다 체감 크기 차 큼) */
 .index-page .rockstar-img {
-  width: min(88vw, 520px);
-  max-width: min(94vw, 560px);
-  max-height: min(88vh, 640px);
+  width: min(72vmin, 520px);
+  max-width: min(88vmin, 560px);
+  max-height: min(82vh, 640px);
 }
 
-/* 오프닝 타이틀 — Y2K(크롬·네온·왜곡) */
+/* 오프닝 타이틀 — Y2K gradient + floor reflection */
 .index-page .text-wrapper .line {
   transform: skewX(-5deg);
   display: block;
-  margin-bottom: 0.28em;
+  margin-bottom: 0.3em;
 }
 
 .index-page .text {
@@ -532,7 +533,8 @@ body.index-page .tv-img {
   font-style: italic;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  line-height: 1.12;
+  line-height: 1.05;
+  -webkit-text-stroke: 0.65px rgba(255, 255, 255, 0.38);
   background: linear-gradient(
     110deg,
     #ec4899 0%,
@@ -545,20 +547,20 @@ body.index-page .tv-img {
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.65px rgba(255, 255, 255, 0.38);
+  color: transparent;
   animation: index-y2k-shimmer 4s ease-in-out infinite alternate;
 }
 
-/* Floor reflection — same as .reflection base: flip + fade mask */
 .index-page .reflection {
+  display: none;
   font-size: clamp(19px, 3.9vw, 52px);
   font-weight: 900;
   font-style: italic;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  line-height: 1.12;
+  line-height: 1.05;
+  -webkit-text-stroke: 0.65px rgba(255, 255, 255, 0.38);
   background: linear-gradient(
     110deg,
     #ec4899 0%,
@@ -571,13 +573,12 @@ body.index-page .tv-img {
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.65px rgba(255, 255, 255, 0.38);
+  color: transparent;
   animation: index-y2k-shimmer 4s ease-in-out infinite alternate;
   transform: scaleY(-1);
   opacity: 0.52;
-  margin-top: -14px;
+  margin-top: -12px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 }
@@ -674,13 +675,13 @@ body.index-page .tv-img {
   transform: scaleY(-1);
   opacity: 0.52;
   margin-top: -26px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.), rgba(0, 0, 0, 0.5));
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.), rgba(0, 0, 0, 0.5));
 }
 
 .text,
 .reflection {
-  background: linear-gradient(to top, #ff66ff, #6a00a8);
+  background: linear-gradient(to bottom, #ff66ff, #6a00a8);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -817,27 +818,27 @@ body.index-page .tv-img {
 
 .inv-spark--a {
   left: 26%;
-  top: 10%;
+  top: 6%;
   animation-delay: 0ms;
 }
 .inv-spark--b {
   left: 72%;
-  top: 24%;
+  top: 19%;
   animation-delay: 120ms;
 }
 .inv-spark--c {
   left: 48%;
-  top: 44%;
+  top: 38%;
   animation-delay: 220ms;
 }
 .inv-spark--d {
   left: 18%;
-  top: 62%;
+  top: 55%;
   animation-delay: 40ms;
 }
 .inv-spark--e {
   left: 80%;
-  top: 78%;
+  top: 70%;
   animation-delay: 180ms;
 }
 
@@ -1205,30 +1206,14 @@ body.index-page .nora-layer {
 }
 
 body.index-page .rockstar-img {
-  width: min(82vw, 540px) !important;
-  max-width: min(94vw, 580px) !important;
-  max-height: min(86vh, 680px) !important;
+  width: min(72vmin, 540px) !important;
+  max-width: min(88vmin, 580px) !important;
+  max-height: min(82vh, 680px) !important;
   /* TV(moveLayer 5) 뒤, 노래방(2) 앞 */
   z-index: 4 !important;
 }
 
-/* 모바일: 타이틀 줄 간격·자간 (겹침 완화) */
 @media (max-width: 640px) {
-  .index-page .text,
-  .index-page .reflection {
-    font-size: clamp(17px, 5.1vw, 40px);
-    letter-spacing: 0.1em;
-    line-height: 1.18;
-  }
-
-  .index-page .text-wrapper .line {
-    margin-bottom: 0.42em;
-  }
-
-  .index-page .reflection {
-    margin-top: -10px;
-  }
-
   body.index-page .intro-scroll-hint {
     top: calc(50vh + min(22vh, 170px));
     font-size: clamp(16px, 4.8vw, 20px);

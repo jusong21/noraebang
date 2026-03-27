@@ -260,25 +260,6 @@
         background: rgba(251, 113, 133, 0.12);
       }
 
-      .gb-like.is-burst {
-        animation: gb-heart-burst 520ms cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-
-      @keyframes gb-heart-burst {
-        0% {
-          transform: scale(1);
-        }
-        40% {
-          transform: scale(1.35);
-        }
-        70% {
-          transform: scale(0.95);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-
       .gb-heart-particle {
         position: absolute;
         pointer-events: none;
@@ -1049,21 +1030,11 @@
           rowLike.classList.toggle("is-liked", !was);
           const c = rowLike.querySelector(".gb-like__count");
           if (c) c.textContent = String(likes);
-          if (!was) {
-            rowLike.classList.remove("is-burst");
-            void rowLike.offsetWidth;
-            rowLike.classList.add("is-burst");
-          }
         }
 
         if (currentId === id) {
           playerLikeBtn.classList.toggle("is-liked", !was);
           if (playerLikeCount) playerLikeCount.textContent = String(likes);
-          if (!was) {
-            playerLikeBtn.classList.remove("is-burst");
-            void playerLikeBtn.offsetWidth;
-            playerLikeBtn.classList.add("is-burst");
-          }
         }
 
         if (!was) {
