@@ -230,7 +230,8 @@
         }
 
         const answers = getAnswers();
-        const correct = countCorrect(answers);
+        const hasAnswers = !!answers;
+        const correct = countCorrect(answers || {});
         const points = pointsFromCorrect(correct);
 
         const scoreLine = document.getElementById("quizScoreLine");
@@ -238,16 +239,6 @@
         const noraeEl = document.getElementById("noraeComment");
         const noraeText = document.getElementById("noraeCommentText");
         const listEl = document.getElementById("quizRankingList");
-
-        if (!answers) {
-          scoreLine.textContent = "저장된 답안이 없습니다.";
-          summary.innerHTML =
-            "퀴즈를 먼저 풀어 주세요. <b>quizintro.html</b>에서 시작할 수 있어요.";
-          summary.style.display = "";
-          noraeEl.style.display = "none";
-          listEl.innerHTML = "";
-          return;
-        }
 
         scoreLine.textContent = points + "점";
         summary.textContent = "";
@@ -261,26 +252,28 @@
         noraeEl.style.display = "block";
 
         let ranking = loadRanking();
-        const nickFromAnswers = normalizeNick(
-          (answers && typeof answers.nick === "string" && answers.nick.trim()) ||
-            sessionStorage.getItem(NICK_KEY) ||
-            ""
-        );
-        ranking.push({
-          nick: nickFromAnswers,
-          points100: points,
-          answered: Object.keys(answers).filter(function (k) {
-            if (k === "nick") return false;
-            if (k.startsWith("q")) return true;
-            return /^quiz\d+\.html$/i.test(k);
-          }).length,
-          timestamp: Date.now(),
-        });
-        ranking.sort(function (a, b) {
-          return rowPoints(b) - rowPoints(a);
-        });
-        ranking = ranking.slice(0, 20);
-        saveRanking(ranking);
+        if (hasAnswers) {
+          const nickFromAnswers = normalizeNick(
+            (answers && typeof answers.nick === "string" && answers.nick.trim()) ||
+              sessionStorage.getItem(NICK_KEY) ||
+              ""
+          );
+          ranking.push({
+            nick: nickFromAnswers,
+            points100: points,
+            answered: Object.keys(answers).filter(function (k) {
+              if (k === "nick") return false;
+              if (k.startsWith("q")) return true;
+              return /^quiz\d+\.html$/i.test(k);
+            }).length,
+            timestamp: Date.now(),
+          });
+          ranking.sort(function (a, b) {
+            return rowPoints(b) - rowPoints(a);
+          });
+          ranking = ranking.slice(0, 20);
+          saveRanking(ranking);
+        }
 
         listEl.innerHTML = "";
         ranking.forEach(function (row) {
