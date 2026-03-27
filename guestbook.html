@@ -999,11 +999,10 @@
       }
 
       let saved = sessionStorage.getItem(NICK_KEY);
-      if (saved === "Guest") {
-        saved = DEFAULT_NICK;
-        sessionStorage.setItem(NICK_KEY, saved);
+      if (saved === "Guest" || saved === "Your name" || saved === "YOUR NAME") {
+        saved = "";
       }
-      if (saved) gbNick.value = saved;
+      gbNick.value = (saved || "").trim().slice(0, 24);
 
       async function toggleLike(id, btnEl) {
         const list = loadEntries();
@@ -1127,8 +1126,13 @@
 
       gbForm.addEventListener("submit", async (ev) => {
         ev.preventDefault();
-        const nickname = (gbNick.value || "").trim().slice(0, 24) || DEFAULT_NICK;
+        const nickname = (gbNick.value || "").trim().slice(0, 24);
         const message = (gbMsg.value || "").trim().slice(0, 200);
+        if (!nickname) {
+          gbNick.focus();
+          window.alert("Please fill in your Nickname.");
+          return;
+        }
         if (!message) {
           gbMsg.focus();
           return;
@@ -1156,7 +1160,7 @@
 
       document.querySelectorAll(".gb-topbar__link[data-save-nick]").forEach((el) => {
         el.addEventListener("click", () => {
-          const v = (gbNick.value || "").trim().slice(0, 24) || DEFAULT_NICK;
+          const v = (gbNick.value || "").trim().slice(0, 24);
           sessionStorage.setItem(NICK_KEY, v);
         });
       });
