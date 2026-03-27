@@ -104,6 +104,12 @@
       input.addEventListener("change", saveNick);
       document.querySelectorAll("[data-save-nick]").forEach((el) => {
         el.addEventListener("click", (ev) => {
+          const href = (el.getAttribute("href") || "").toLowerCase();
+          const isGuestbookLink = href.includes("guestbook.html");
+          if (isGuestbookLink) {
+            // Guestbook page is allowed without nickname.
+            return;
+          }
           if (!hasValidNick()) {
             ev.preventDefault();
             alert("Please fill in your Nickname before continuing.");
