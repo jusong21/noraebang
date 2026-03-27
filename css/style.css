@@ -734,7 +734,12 @@ body.index-page .tv-img {
 
 /* index: 말풍선도 리모콘·TV와 비슷한 읽기 폭으로 */
 .index-page .story-panel {
-  width: min(380px, 92vw);
+  top: 48%;
+  width: min(470px, 98vw);
+}
+
+.index-page .story-panel.visible {
+  transform: translate(-50%, calc(-50% - 2vh));
 }
 
 /* Invitation envelope (speech-bubble UI removed) */
@@ -747,15 +752,15 @@ body.index-page .tv-img {
 
 .inv-envelope {
   width: 100%;
-  max-width: 380px;
-  height: 320px;
+  max-width: 460px;
+  height: 468px;
   position: relative;
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   transform-origin: 50% 100%;
   outline: none;
-  margin-top: -44px;
+  margin-top: -8px;
 }
 
 .inv-envelope:focus-visible {
@@ -770,13 +775,15 @@ body.index-page .tv-img {
   width: 100%;
   height: 100%;
   z-index: 2;
+  transform: scaleY(1.22);
+  transform-origin: 50% 50%;
 }
 
 .inv-letter {
   position: absolute;
   left: 50%;
   bottom: 28px;
-  width: min(308px, 86%);
+  width: min(380px, 92%);
   transform: translate(-50%, 170px);
   opacity: 0;
   transition:
@@ -818,27 +825,27 @@ body.index-page .tv-img {
 
 .inv-spark--a {
   left: 26%;
-  top: 6%;
+  top: 9%;
   animation-delay: 0ms;
 }
 .inv-spark--b {
   left: 72%;
-  top: 19%;
+  top: 22%;
   animation-delay: 120ms;
 }
 .inv-spark--c {
   left: 48%;
-  top: 38%;
+  top: 41%;
   animation-delay: 220ms;
 }
 .inv-spark--d {
   left: 18%;
-  top: 55%;
+  top: 58%;
   animation-delay: 40ms;
 }
 .inv-spark--e {
   left: 80%;
-  top: 70%;
+  top: 73%;
   animation-delay: 180ms;
 }
 
@@ -909,7 +916,8 @@ body.index-page .tv-img {
   border: 5px solid #0f172a;
   border-radius: 18px;
   box-shadow: 8px 10px 0 rgba(15, 23, 42, 0.32);
-  padding: 22px 16px 26px;
+  min-height: 330px;
+  padding: 24px 16px 36px;
 }
 
 .inv-letter__paper::after {
@@ -926,7 +934,7 @@ body.index-page .tv-img {
 }
 
 .inv-letter__title {
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-align: center;
@@ -936,8 +944,8 @@ body.index-page .tv-img {
 
 .inv-letter__text {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 17px;
+  line-height: 1.68;
   color: #111827;
   text-align: left;
 }
@@ -1118,7 +1126,7 @@ body.index-page .tv-img {
 .story-actions {
   position: fixed;
   left: 50%;
-  bottom: clamp(64px, 14vh, 128px);
+  bottom: clamp(20px, 7vh, 64px);
   z-index: 20;
   transform: translate(-50%, 16px);
   opacity: 0;
@@ -1214,34 +1222,6 @@ body.index-page .rockstar-img {
 }
 
 @media (max-width: 640px) {
-  .index-page .story-panel {
-    top: 54%;
-    width: min(470px, 98vw);
-  }
-
-  .index-page .story-panel.visible {
-    transform: translate(-50%, calc(-50% + 2vh));
-  }
-
-  .index-page .inv-envelope {
-    max-width: 460px;
-    height: 408px;
-    margin-top: -8px;
-  }
-
-  .index-page .inv-letter {
-    width: min(380px, 92%);
-  }
-
-  .index-page .inv-letter__title {
-    font-size: 22px;
-  }
-
-  .index-page .inv-letter__text {
-    font-size: 17px;
-    line-height: 1.68;
-  }
-
   body.index-page .rockstar-img {
     width: min(98vmin, 760px) !important;
     max-width: min(100vw, 760px) !important;
