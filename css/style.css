@@ -1215,26 +1215,31 @@ body.index-page .rockstar-img {
 
 @media (max-width: 640px) {
   .index-page .story-panel {
-    width: min(430px, 96vw);
+    top: 54%;
+    width: min(470px, 98vw);
+  }
+
+  .index-page .story-panel.visible {
+    transform: translate(-50%, calc(-50% + 2vh));
   }
 
   .index-page .inv-envelope {
-    max-width: 420px;
-    height: 360px;
-    margin-top: -34px;
+    max-width: 460px;
+    height: 408px;
+    margin-top: -8px;
   }
 
   .index-page .inv-letter {
-    width: min(346px, 90%);
+    width: min(380px, 92%);
   }
 
   .index-page .inv-letter__title {
-    font-size: 19px;
+    font-size: 22px;
   }
 
   .index-page .inv-letter__text {
-    font-size: 15px;
-    line-height: 1.62;
+    font-size: 17px;
+    line-height: 1.68;
   }
 
   body.index-page .rockstar-img {

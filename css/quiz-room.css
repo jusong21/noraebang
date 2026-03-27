@@ -196,7 +196,7 @@ html:has(body.quiz-room-page) {
 
 /* 모든 퀴즈 페이지·Q8/Q10: 보기 2×2 — 행·열 간격 넉넉히(겹침 방지), 아래 여백으로 기계와 분리 */
 .quiz-room__choices {
-  --quiz-choice-row: 58px;
+  --quiz-choice-row: 68px;
   --quiz-choice-gap: 12px;
   width: 100%;
   max-width: 380px;
@@ -275,6 +275,11 @@ html:has(body.quiz-room-page) {
 }
 
 @media (max-width: 640px) {
+  .quiz-room__choices {
+    --quiz-choice-row: 76px;
+    --quiz-choice-gap: 13px;
+  }
+
   .quiz-choice-slot {
     font-size: 15px;
     line-height: 1.45;
