@@ -615,6 +615,7 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <div class="guestbook-shell">
@@ -728,11 +729,17 @@
     </div>
 
     <script>
-      const LS_KEY = "guestbook-playlist";
-      const LEGACY_KEY = "guestbook-songbook";
+      const SUPABASE_URL = "https://pyyjdrsmzhuesilupgsu.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eWpkcnNtemh1ZXNpbHVwZ3N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjUyMDAsImV4cCI6MjA5MDE0MTIwMH0.VdpnEEyhia6mysw2rv1pzKtwfJ60o-zGtl8Par4-mJI";
+      const { createClient } = window.supabase;
+      const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
       const NICK_KEY = "partyNickname";
       const DEFAULT_NICK = "Your name";
       const RING_LEN = 282.74;
+
+      let entriesCache = [];
 
       /** Row-sized icons (pixel font often lacks ▶ / ❚❚) */
       const ICON_ROW_PLAY = `<svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M3 2.2v7.6L10 6z"/></svg>`;
@@ -807,38 +814,54 @@
       }
 
       function loadEntries() {
-        try {
-          const raw = localStorage.getItem(LS_KEY);
-          const p = raw ? JSON.parse(raw) : [];
-          return Array.isArray(p) ? p : [];
-        } catch {
-          return [];
-        }
+        return entriesCache;
       }
 
-      function saveEntries(list) {
-        localStorage.setItem(LS_KEY, JSON.stringify(list));
+      function getVisitorId() {
+        let v = localStorage.getItem("visitor_id");
+        if (!v || v.length < 8) {
+          v = crypto.randomUUID();
+          localStorage.setItem("visitor_id", v);
+        }
+        return v;
       }
 
-      function migrateLegacyIfNeeded() {
-        const already = localStorage.getItem(LS_KEY);
-        if (already) return;
-        try {
-          const raw = localStorage.getItem(LEGACY_KEY);
-          const legacy = raw ? JSON.parse(raw) : [];
-          if (!Array.isArray(legacy) || legacy.length === 0) return;
-          const migrated = legacy.map((e) => ({
-            id: String(e.number || e.at || Date.now()) + "-" + Math.random().toString(16).slice(2, 7),
-            nickname: String(e.nickname || DEFAULT_NICK).slice(0, 24),
-            message: String(e.message || "").slice(0, 200),
-            liked: false,
-            likes: 0,
-            at: Number(e.at || Date.now()),
-          }));
-          saveEntries(migrated);
-        } catch {
-          // ignore
+      async function refreshEntries() {
+        const { data: comments, error: errComments } = await sb
+          .from("comments")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (errComments) {
+          console.error(errComments);
+          entriesCache = [];
+          return;
         }
+        const visitorId = getVisitorId();
+        const rows = comments || [];
+        const ids = rows.map((c) => c.id);
+        let likeRows = [];
+        if (ids.length) {
+          const { data: likes, error: errLikes } = await sb
+            .from("comment_likes")
+            .select("comment_id, visitor_id")
+            .in("comment_id", ids);
+          if (errLikes) console.error(errLikes);
+          else likeRows = likes || [];
+        }
+        const countMap = {};
+        const likedSet = new Set();
+        for (const row of likeRows) {
+          countMap[row.comment_id] = (countMap[row.comment_id] || 0) + 1;
+          if (row.visitor_id === visitorId) likedSet.add(row.comment_id);
+        }
+        entriesCache = rows.map((c) => ({
+          id: c.id,
+          nickname: c.nickname,
+          message: c.body,
+          at: new Date(c.created_at).getTime(),
+          liked: likedSet.has(c.id),
+          likes: countMap[c.id] || 0,
+        }));
       }
 
       function clampText(s, n) {
@@ -1000,21 +1023,32 @@
       }
       if (saved) gbNick.value = saved;
 
-      function toggleLike(id, btnEl) {
+      async function toggleLike(id, btnEl) {
         const list = loadEntries();
         const idx = list.findIndex((e) => e && e.id === id);
         if (idx < 0) return;
         const was = !!list[idx].liked;
-        list[idx].liked = !was;
-        list[idx].likes = Math.max(0, Number(list[idx].likes || 0) + (was ? -1 : 1));
-        saveEntries(list);
+        const visitorId = getVisitorId();
+
+        if (was) {
+          const { error } = await sb.from("comment_likes").delete().eq("comment_id", id).eq("visitor_id", visitorId);
+          if (error) console.error(error);
+        } else {
+          const { error } = await sb.from("comment_likes").insert({ comment_id: id, visitor_id: visitorId });
+          if (error && error.code !== "23505") console.error(error);
+        }
+
+        await refreshEntries();
+        renderList();
 
         const rowLike = listScroll.querySelector(`.gb-row[data-id="${CSS.escape(id)}"] .gb-like`);
-        const likeBtn = btnEl || rowLike;
+        const entryAfter = loadEntries().find((e) => e && e.id === id);
+        const likes = entryAfter ? Number(entryAfter.likes || 0) : 0;
+
         if (rowLike) {
           rowLike.classList.toggle("is-liked", !was);
           const c = rowLike.querySelector(".gb-like__count");
-          if (c) c.textContent = String(list[idx].likes || 0);
+          if (c) c.textContent = String(likes);
           if (!was) {
             rowLike.classList.remove("is-burst");
             void rowLike.offsetWidth;
@@ -1024,7 +1058,7 @@
 
         if (currentId === id) {
           playerLikeBtn.classList.toggle("is-liked", !was);
-          if (playerLikeCount) playerLikeCount.textContent = String(list[idx].likes || 0);
+          if (playerLikeCount) playerLikeCount.textContent = String(likes);
           if (!was) {
             playerLikeBtn.classList.remove("is-burst");
             void playerLikeBtn.offsetWidth;
@@ -1119,7 +1153,7 @@
         toggleLike(currentId, playerLikeBtn);
       });
 
-      gbForm.addEventListener("submit", (ev) => {
+      gbForm.addEventListener("submit", async (ev) => {
         ev.preventDefault();
         const nickname = (gbNick.value || "").trim().slice(0, 24) || DEFAULT_NICK;
         const message = (gbMsg.value || "").trim().slice(0, 200);
@@ -1128,27 +1162,25 @@
           return;
         }
 
-        const list = loadEntries();
-        const entry = {
-          id: Date.now().toString(36) + "-" + Math.random().toString(16).slice(2, 7),
-          nickname,
-          message,
-          liked: false,
-          likes: 0,
-          at: Date.now(),
-        };
-        list.unshift(entry);
-        saveEntries(list);
+        const { error } = await sb.from("comments").insert({ nickname, body: message });
+        if (error) {
+          console.error(error);
+          window.alert("Could not save comment. Check Supabase tables and RLS policies.");
+          return;
+        }
 
         sessionStorage.setItem(NICK_KEY, nickname);
         gbNick.value = nickname;
         gbMsg.value = "";
+        await refreshEntries();
         renderList();
       });
 
-      migrateLegacyIfNeeded();
-      renderList();
-      syncPlayUI();
+      (async function initGuestbook() {
+        await refreshEntries();
+        renderList();
+        syncPlayUI();
+      })();
 
       document.querySelectorAll(".gb-topbar__link[data-save-nick]").forEach((el) => {
         el.addEventListener("click", () => {
