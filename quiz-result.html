@@ -253,8 +253,8 @@
         const listEl = document.getElementById("quizRankingList");
 
         scoreLine.textContent = points + "점";
-        summary.textContent = "Maybe... The highest score gets a small gift? 🎁";
-        summary.style.display = "";
+        summary.textContent = "";
+        summary.style.display = "none";
 
         const nc = noraeCommentForPoints(points);
         noraeText.textContent = nc.text;
