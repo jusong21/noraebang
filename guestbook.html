@@ -998,11 +998,12 @@
         updateRowPlayIcons();
       }
 
-      let saved = sessionStorage.getItem(NICK_KEY);
-      if (saved === "Guest" || saved === "Your name" || saved === "YOUR NAME") {
+      let saved = sessionStorage.getItem(NICK_KEY) || "";
+      const normalizedSavedNick = saved.trim().toLowerCase();
+      if (normalizedSavedNick === "guest" || normalizedSavedNick === "your name") {
         saved = "";
       }
-      gbNick.value = (saved || "").trim().slice(0, 24);
+      gbNick.value = saved.trim().slice(0, 24);
 
       async function toggleLike(id, btnEl) {
         const list = loadEntries();
@@ -1128,7 +1129,8 @@
         ev.preventDefault();
         const nickname = (gbNick.value || "").trim().slice(0, 24);
         const message = (gbMsg.value || "").trim().slice(0, 200);
-        if (!nickname) {
+        const normalizedNick = nickname.toLowerCase();
+        if (!nickname || normalizedNick === "your name" || normalizedNick === "guest") {
           gbNick.focus();
           window.alert("Please fill in your Nickname.");
           return;
