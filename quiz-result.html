@@ -225,7 +225,7 @@
           nick = nick.replace(/\s*\/\s*\d+\s*$/, "");
 
           nick = nick.trim();
-          if (!nick || nick === "익명") return "Guest";
+          if (!nick || nick === "Your name") return "Guest";
           return nick.slice(0, 24);
         }
 
@@ -262,7 +262,9 @@
 
         let ranking = loadRanking();
         const nickFromAnswers = normalizeNick(
-          (answers && typeof answers.nick === "string" && answers.nick.trim()) || ""
+          (answers && typeof answers.nick === "string" && answers.nick.trim()) ||
+            sessionStorage.getItem(NICK_KEY) ||
+            ""
         );
         ranking.push({
           nick: nickFromAnswers,

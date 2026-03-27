@@ -1214,6 +1214,17 @@ body.index-page .rockstar-img {
 }
 
 @media (max-width: 640px) {
+  body.index-page .rockstar-img {
+    width: min(88vmin, 620px) !important;
+    max-width: min(96vw, 620px) !important;
+    max-height: min(88vh, 760px) !important;
+  }
+
+  .index-page .text {
+    font-size: clamp(24px, 6.8vw, 56px);
+    letter-spacing: 0.12em;
+  }
+
   body.index-page .intro-scroll-hint {
     top: calc(50vh + min(22vh, 170px));
     font-size: clamp(16px, 4.8vw, 20px);
