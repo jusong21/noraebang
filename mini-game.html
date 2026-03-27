@@ -14,6 +14,7 @@
     <link rel="preload" href="images/cloud.jpg" as="image" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/remote.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
       html {
         scrollbar-gutter: stable;
@@ -160,8 +161,11 @@
     <script>
       const NICK_KEY = "partyNickname";
       const DEFAULT_NICK = "Your name";
-      const LS_RANK = "cms-food-game-rank";
-      const LS_BEST = "cms-food-game-best";
+      const LS_BEST = "cms-food-game-best-v2";
+      const SUPABASE_URL = "https://pyyjdrsmzhuesilupgsu.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eWpkcnNtemh1ZXNpbHVwZ3N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjUyMDAsImV4cCI6MjA5MDE0MTIwMH0.VdpnEEyhia6mysw2rv1pzKtwfJ60o-zGtl8Par4-mJI";
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const TIME_MS = 12 * 1000;
       const MOOD_MS = 520;
@@ -321,17 +325,30 @@
         }
       }
 
-      function loadRanking() {
-        try {
-          const raw = localStorage.getItem(LS_RANK);
-          const p = raw ? JSON.parse(raw) : [];
-          return Array.isArray(p) ? p : [];
-        } catch {
+      async function loadRanking() {
+        const { data, error } = await sb
+          .from("mini_game_rankings")
+          .select("nickname, score, created_at")
+          .order("score", { ascending: false })
+          .order("created_at", { ascending: true })
+          .limit(20);
+        if (error) {
+          console.error(error);
           return [];
         }
+        return (data || []).map((row) => ({
+          name: row.nickname,
+          score: Number(row.score) || 0,
+          at: row.created_at,
+        }));
       }
-      function saveRanking(list) {
-        localStorage.setItem(LS_RANK, JSON.stringify(list));
+
+      async function saveRankingEntry(name, score) {
+        const { error } = await sb.from("mini_game_rankings").insert({
+          nickname: String(name || DEFAULT_NICK).slice(0, 24),
+          score: Number(score) || 0,
+        });
+        if (error) console.error(error);
       }
 
       function escapeHtml(s) {
@@ -387,7 +404,7 @@
         state.moodUntil = performance.now() + MOOD_MS;
       }
 
-      function finishGame() {
+      async function finishGame() {
         state.running = false;
         state.timeLeft = 0;
         saveBest();
@@ -401,10 +418,8 @@
         cardDesc.innerHTML = "";
         gameButtonPanel.classList.add("remote__button-panel--results");
         rankSection.classList.add("show");
-        const list = loadRanking();
-        list.push({ name: state.nickname, score: state.score, at: Date.now() });
-        list.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
-        saveRanking(list);
+        await saveRankingEntry(state.nickname, state.score);
+        const list = await loadRanking();
         renderRanking(list);
         startBtn.textContent = "RESTART";
         paintIdleCanvas();
@@ -635,7 +650,7 @@
         requestAnimationFrame(loop);
       }
 
-      (function init() {
+      (async function init() {
         let fromMain = sessionStorage.getItem(NICK_KEY);
         if (fromMain === "Guest") {
           fromMain = DEFAULT_NICK;
@@ -643,7 +658,7 @@
         }
         if (fromMain) nicknameInput.value = fromMain;
         loadBest();
-        renderRanking(loadRanking());
+        renderRanking(await loadRanking());
         resize();
         loadAllAssets().then(() => {
           resize();

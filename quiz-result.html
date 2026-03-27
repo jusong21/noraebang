@@ -14,6 +14,7 @@
     <link rel="preload" href="images/cloud.jpg" as="image" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/quiz-room.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body class="quiz-room-page quiz-result-page">
     <div class="quiz-room">
@@ -107,11 +108,14 @@
     </div>
 
     <script>
-      (function () {
+      (async function () {
         const KEY = "quizAnswers";
-        const RANK_KEY = "quizRanking";
         const NICK_KEY = "partyNickname";
         const DEFAULT_NICK = "Your name";
+        const SUPABASE_URL = "https://pyyjdrsmzhuesilupgsu.supabase.co";
+        const SUPABASE_ANON_KEY =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eWpkcnNtemh1ZXNpbHVwZ3N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjUyMDAsImV4cCI6MjA5MDE0MTIwMH0.VdpnEEyhia6mysw2rv1pzKtwfJ60o-zGtl8Par4-mJI";
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const g = document.getElementById("quizGreeting");
         let nick = sessionStorage.getItem(NICK_KEY);
@@ -193,23 +197,31 @@
           return s;
         }
 
-        function loadRanking() {
-          try {
-            const raw = localStorage.getItem(RANK_KEY);
-            if (!raw) return [];
-            const arr = JSON.parse(raw);
-            return Array.isArray(arr) ? arr : [];
-          } catch {
+        async function loadRanking() {
+          const { data, error } = await sb
+            .from("quiz_rankings")
+            .select("nickname, score, created_at")
+            .order("score", { ascending: false })
+            .order("created_at", { ascending: true })
+            .limit(20);
+          if (error) {
+            console.error(error);
             return [];
           }
+          return (data || []).map((row) => ({
+            nick: row.nickname,
+            points100: Number(row.score) || 0,
+            createdAt: row.created_at,
+          }));
         }
 
-        function saveRanking(list) {
-          try {
-            localStorage.setItem(RANK_KEY, JSON.stringify(list));
-          } catch {
-            /* ignore */
-          }
+        async function saveRankingEntry(nick, points, answered) {
+          const { error } = await sb.from("quiz_rankings").insert({
+            nickname: nick,
+            score: Math.max(0, Math.min(100, Number(points) || 0)),
+            answered: Math.max(0, Math.min(10, Number(answered) || 0)),
+          });
+          if (error) console.error(error);
         }
 
         function normalizeNick(input) {
@@ -251,28 +263,20 @@
           (nc.tone || "warn");
         noraeEl.style.display = "block";
 
-        let ranking = loadRanking();
+        let ranking = await loadRanking();
         if (hasAnswers) {
           const nickFromAnswers = normalizeNick(
             (answers && typeof answers.nick === "string" && answers.nick.trim()) ||
               sessionStorage.getItem(NICK_KEY) ||
               ""
           );
-          ranking.push({
-            nick: nickFromAnswers,
-            points100: points,
-            answered: Object.keys(answers).filter(function (k) {
-              if (k === "nick") return false;
-              if (k.startsWith("q")) return true;
-              return /^quiz\d+\.html$/i.test(k);
-            }).length,
-            timestamp: Date.now(),
-          });
-          ranking.sort(function (a, b) {
-            return rowPoints(b) - rowPoints(a);
-          });
-          ranking = ranking.slice(0, 20);
-          saveRanking(ranking);
+          const answered = Object.keys(answers).filter(function (k) {
+            if (k === "nick") return false;
+            if (k.startsWith("q")) return true;
+            return /^quiz\d+\.html$/i.test(k);
+          }).length;
+          await saveRankingEntry(nickFromAnswers, points, answered);
+          ranking = await loadRanking();
         }
 
         listEl.innerHTML = "";
