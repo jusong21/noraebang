@@ -224,6 +224,40 @@
           if (error) console.error(error);
         }
 
+        async function savePrivateSubmission(nick, points, answersObj) {
+          try {
+            const payload = {
+              nickname: String(nick || "Guest").slice(0, 24),
+              score: Math.max(0, Math.min(100, Number(points) || 0)),
+              answers: answersObj,
+            };
+            const dedupeKey = "quizSubmissionLogged";
+            const signature = JSON.stringify(payload);
+            if (sessionStorage.getItem(dedupeKey) === signature) return;
+
+            const res = await fetch(
+              "https://pyyjdrsmzhuesilupgsu.supabase.co/functions/v1/log-quiz-submission",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + SUPABASE_ANON_KEY,
+                },
+                body: JSON.stringify(payload),
+              }
+            );
+
+            if (!res.ok) {
+              const txt = await res.text();
+              console.error("log-quiz-submission failed:", txt);
+              return;
+            }
+            sessionStorage.setItem(dedupeKey, signature);
+          } catch (e) {
+            console.error("log-quiz-submission error:", e);
+          }
+        }
+
         function normalizeNick(input) {
           let nick = String(input || "").trim();
 
@@ -276,6 +310,7 @@
             return /^quiz\d+\.html$/i.test(k);
           }).length;
           await saveRankingEntry(nickFromAnswers, points, answered);
+          await savePrivateSubmission(nickFromAnswers, points, answers);
           ranking = await loadRanking();
         }
 
