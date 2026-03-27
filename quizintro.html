@@ -67,6 +67,8 @@
               <b>10</b> questions, all about me.<br />
               Get them wrong…<br />
               and I will judge you 👀<br />
+              Who knows?<br />
+              The top scorer may get a small gift 🎁
             </p>
             <div class="remote__keys">
               <a
@@ -78,6 +80,11 @@
             </div>
 
             <div class="remote__dock" aria-label="Quick navigation">
+              <a
+                class="remote__dock-btn remote__dock-btn--label"
+                href="quiz-result.html"
+                aria-label="Scores"
+              >Scores</a>
               <a class="remote__dock-btn" href="main.html" title="Main menu" aria-label="Main menu">
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
               </a>
@@ -99,7 +106,8 @@
 
       function saveNick() {
         const v = (quizNick.value || "").trim().slice(0, 24);
-        sessionStorage.setItem(NICK_KEY, v || DEFAULT_NICK);
+        if (v) sessionStorage.setItem(NICK_KEY, v);
+        else sessionStorage.removeItem(NICK_KEY);
       }
 
       function resetQuizRun() {
@@ -107,12 +115,11 @@
         sessionStorage.removeItem("quizRankingSubmitted");
       }
 
-      let saved = sessionStorage.getItem(NICK_KEY);
-      if (saved === "Guest") {
-        saved = DEFAULT_NICK;
-        sessionStorage.setItem(NICK_KEY, saved);
+      let saved = sessionStorage.getItem(NICK_KEY) || "";
+      if (saved === "Guest" || saved.trim().toLowerCase() === DEFAULT_NICK.toLowerCase()) {
+        saved = "";
       }
-      quizNick.value = (saved || DEFAULT_NICK).slice(0, 24);
+      quizNick.value = saved.slice(0, 24);
 
       function hasValidNick() {
         const v = (quizNick.value || "").trim();

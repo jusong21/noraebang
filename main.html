@@ -84,38 +84,21 @@
       /** 빈 칸으로 저장될 때 입력란에 보이는 기본 문구 (예전 "Guest" 대신) */
       const DEFAULT_NICK = "YOUR NAME";
       const input = document.getElementById("partyNick");
-      let saved = sessionStorage.getItem(NICK_KEY);
-      if (saved === "Guest") {
-        saved = DEFAULT_NICK;
-        sessionStorage.setItem(NICK_KEY, saved);
+      let saved = sessionStorage.getItem(NICK_KEY) || "";
+      if (saved === "Guest" || saved.trim().toLowerCase() === DEFAULT_NICK.toLowerCase()) {
+        saved = "";
       }
-      input.value = (saved || DEFAULT_NICK).slice(0, 24);
+      input.value = saved.slice(0, 24);
 
       function saveNick() {
         const v = (input.value || "").trim().slice(0, 24);
-        sessionStorage.setItem(NICK_KEY, v || DEFAULT_NICK);
-      }
-
-      function hasValidNick() {
-        const v = (input.value || "").trim();
-        return v.length > 0 && v.toLowerCase() !== DEFAULT_NICK.toLowerCase();
+        if (v) sessionStorage.setItem(NICK_KEY, v);
+        else sessionStorage.removeItem(NICK_KEY);
       }
 
       input.addEventListener("change", saveNick);
       document.querySelectorAll("[data-save-nick]").forEach((el) => {
-        el.addEventListener("click", (ev) => {
-          const href = (el.getAttribute("href") || "").toLowerCase();
-          const isGuestbookLink = href.includes("guestbook.html");
-          if (isGuestbookLink) {
-            // Guestbook page is allowed without nickname.
-            return;
-          }
-          if (!hasValidNick()) {
-            ev.preventDefault();
-            alert("Please fill in your Nickname before continuing.");
-            input.focus();
-            return;
-          }
+        el.addEventListener("click", () => {
           saveNick();
         });
       });

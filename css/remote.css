@@ -454,6 +454,26 @@ button.remote__key {
   display: block;
 }
 
+.remote__dock-btn--label {
+  width: auto;
+  min-width: 74px;
+  padding: 0 12px;
+  font-size: 12px;
+  line-height: 30px;
+  text-align: center;
+  font-family: "DungGeunMo", system-ui, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #2c2c32;
+  cursor: pointer;
+  border: 1px solid #9a9aa4;
+  background: linear-gradient(180deg, #ececf0 0%, #c6c6d0 100%);
+}
+
+.remote__dock-btn--label:active {
+  transform: translateY(2px);
+}
+
 /* 모바일: 리모콘이 화면 가장자리에 딱 붙지 않게 좌우 여백 확대 */
 @media (max-width: 520px) {
   .remote-shell {

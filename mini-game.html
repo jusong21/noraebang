@@ -119,7 +119,7 @@
 
           <div class="remote__lcd" id="nicknameField">
             <label for="nicknameInput">Nickname</label>
-            <input id="nicknameInput" type="text" maxlength="24" placeholder="________________________________________" />
+            <input id="nicknameInput" type="text" maxlength="24" placeholder="__________________" />
           </div>
 
           <div
@@ -146,6 +146,14 @@
             </div>
 
             <div class="remote__dock" aria-label="Quick navigation">
+              <button
+                id="showScoresBtn"
+                type="button"
+                class="remote__dock-btn remote__dock-btn--label"
+                aria-label="Scores"
+              >
+                Scores
+              </button>
               <a class="remote__dock-btn" href="main.html" title="Main menu" aria-label="Main menu">
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
               </a>
@@ -202,6 +210,7 @@
       const cardDesc = document.getElementById("cardDesc");
       const gameButtonPanel = document.getElementById("gameButtonPanel");
       const replayHint = document.getElementById("replayHint");
+      const showScoresBtn = document.getElementById("showScoresBtn");
 
       const INTRO_TITLE = "Mini game";
       const INTRO_SUBTITLE = "ROOM REMOTE";
@@ -330,8 +339,7 @@
           .from("mini_game_rankings")
           .select("nickname, score, created_at")
           .order("score", { ascending: false })
-          .order("created_at", { ascending: true })
-          .limit(20);
+          .order("created_at", { ascending: true });
         if (error) {
           console.error(error);
           return [];
@@ -427,8 +435,15 @@
 
       function startGame() {
         const nick = (nicknameInput.value || "").trim();
-        state.nickname = nick ? nick.slice(0, 24) : DEFAULT_NICK;
-        if (!nick) nicknameInput.value = state.nickname;
+        const normalized = nick.toLowerCase();
+        const invalidDefault = DEFAULT_NICK && DEFAULT_NICK.toLowerCase() === normalized;
+        if (!nick || invalidDefault) {
+          alert("Please fill in your Nickname before starting.");
+          nicknameInput.focus();
+          return;
+        }
+
+        state.nickname = nick.slice(0, 24);
 
         rankSection.classList.remove("show");
         gameButtonPanel.classList.remove("remote__button-panel--results");
@@ -652,11 +667,12 @@
 
       (async function init() {
         let fromMain = sessionStorage.getItem(NICK_KEY);
-        if (fromMain === "Guest") {
-          fromMain = DEFAULT_NICK;
-          sessionStorage.setItem(NICK_KEY, fromMain);
+        if (fromMain === "Guest") fromMain = "";
+        if (fromMain && String(fromMain).trim().toLowerCase() === DEFAULT_NICK.toLowerCase()) {
+          fromMain = "";
         }
-        if (fromMain) nicknameInput.value = fromMain;
+        if (fromMain) nicknameInput.value = String(fromMain).trim().slice(0, 24);
+        else nicknameInput.value = "";
         loadBest();
         renderRanking(await loadRanking());
         resize();
@@ -664,6 +680,26 @@
           resize();
           paintIdleCanvas();
         });
+
+        if (showScoresBtn) {
+          showScoresBtn.addEventListener("click", async () => {
+            // Show ranking only (same "results" vibe: hide description)
+            if (cardDesc) {
+              cardDesc.classList.add("cardDesc--hidden");
+              cardDesc.innerHTML = "";
+            }
+            if (replayHint) replayHint.setAttribute("hidden", "");
+            if (gameButtonPanel) gameButtonPanel.classList.add("remote__button-panel--results");
+            if (rankSection) rankSection.classList.add("show");
+
+            startBtn.disabled = true;
+            startBtn.textContent = "START";
+            cardTitle.textContent = "SCORE RANKING";
+            cardSubtitle.textContent = INTRO_SUBTITLE;
+
+            await renderRanking(await loadRanking());
+          });
+        }
       })();
     </script>
   </body>
