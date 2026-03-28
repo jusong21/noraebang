@@ -202,8 +202,7 @@
             .from("quiz_rankings")
             .select("nickname, score, created_at")
             .order("score", { ascending: false })
-            .order("created_at", { ascending: true })
-            .limit(20);
+            .order("created_at", { ascending: true });
           if (error) {
             console.error(error);
             return [];
