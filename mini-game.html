@@ -82,6 +82,16 @@
       #cardSubtitle .brand-score {
         color: #7dd3fc;
       }
+      /* 제목 줄과 동일한 골드 — 점수 숫자만 하늘색 유지 */
+      #cardTitle .brand-score-label {
+        color: #ffd54a;
+        text-shadow:
+          0 0 8px rgba(255, 200, 60, 0.45),
+          0 0 16px rgba(255, 180, 40, 0.2);
+      }
+      #cardTitle .brand-score {
+        color: #7dd3fc;
+      }
       /* 설명 안 강조: 점수와 동일 하늘색 (일반 .remote__hint b 노랑 덮어씀) */
       #cardDesc b {
         color: #7dd3fc;
@@ -97,6 +107,23 @@
         letter-spacing: 0.14em;
         text-transform: uppercase;
         color: #fff;
+      }
+      /* 랭킹 스크롤: 96px보다 조금만 키우기 — 너무 크면 START/RESTART가 패널 밖으로 밀림 */
+      #overlay .remote__button-panel .rank-list {
+        max-height: 128px;
+      }
+      #overlay .remote__button-panel .remote__keys {
+        flex-shrink: 0;
+      }
+      #overlay .remote__button-panel.remote__button-panel--centered:not(.remote__button-panel--results) .remote__keys {
+        margin-top: 28px;
+      }
+      /* 결과 화면: "One more round?" ↔ RESTART 간격 축소 — 안 하면 버튼이 아래 dock과 겹침 */
+      #overlay .remote__button-panel--results #replayHint {
+        margin: 4px 0 2px;
+      }
+      #overlay .remote__button-panel--results .remote__keys {
+        margin-top: 8px;
       }
     </style>
   </head>
@@ -346,17 +373,22 @@
         }
         return (data || []).map((row) => ({
           name: row.nickname,
-          score: Number(row.score) || 0,
+          score: normalizeScore(row.score),
           at: row.created_at,
         }));
+      }
+
+      function normalizeScore(v) {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
       }
 
       async function saveRankingEntry(name, score) {
         const { error } = await sb.from("mini_game_rankings").insert({
           nickname: String(name || DEFAULT_NICK).slice(0, 24),
-          score: Number(score) || 0,
+          score: normalizeScore(score),
         });
-        if (error) console.error(error);
+        if (error) console.error("mini_game_rankings insert:", error);
       }
 
       function escapeHtml(s) {
@@ -367,7 +399,7 @@
 
       function renderRanking(list) {
         const sorted = [...(list || [])].sort(
-          (a, b) => (Number(b.score) || 0) - (Number(a.score) || 0)
+          (a, b) => normalizeScore(b.score) - normalizeScore(a.score)
         );
         if (!sorted.length) {
           rankList.innerHTML =
@@ -379,7 +411,7 @@
             (item, i) => `
           <div class="rank-item">
             <span class="rank-name">#${i + 1} ${escapeHtml(item.name || DEFAULT_NICK)}</span>
-            <span class="rank-score">${Number(item.score) || 0}</span>
+            <span class="rank-score">${normalizeScore(item.score)}</span>
           </div>`
           )
           .join("");
@@ -417,10 +449,10 @@
         state.timeLeft = 0;
         saveBest();
         overlay.style.display = "grid";
-        cardTitle.textContent = "TIME UP!";
-        cardSubtitle.innerHTML =
+        cardTitle.innerHTML =
           `<span class="brand-score-label">Final score: </span>` +
           `<span class="brand-score">${state.score}</span>`;
+        cardSubtitle.textContent = "Time up!";
         replayHint.removeAttribute("hidden");
         cardDesc.classList.add("cardDesc--hidden");
         cardDesc.innerHTML = "";
@@ -692,7 +724,7 @@
             if (gameButtonPanel) gameButtonPanel.classList.add("remote__button-panel--results");
             if (rankSection) rankSection.classList.add("show");
 
-            startBtn.disabled = true;
+            startBtn.disabled = !assetsReady;
             startBtn.textContent = "START";
             cardTitle.textContent = "SCORE RANKING";
             cardSubtitle.textContent = INTRO_SUBTITLE;
